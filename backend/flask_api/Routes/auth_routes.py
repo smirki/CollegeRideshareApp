@@ -44,17 +44,25 @@ def register():
     lastName = request.json['lastName']
     phone = request.json['phone']
     if 'edu' in email:
-        if db.Users.find_one({'email': email}):
+        user = db.Users.find_one({'email': email})
+        if user:
             return jsonify({'error': 'User already exists'}), 409
         hashed_password = generate_password_hash(password)
-        db.Users.insert_one({
+        # Save the user and then create a token with more information
+        user = {
             'email': email,
             'password': hashed_password,
-            'firstName': firstName,
-            'lastName': lastName,
-            'phone': phone
-        })
-        token = jwt.encode({'user': email, 'exp': datetime.utcnow() + timedelta(minutes=30)}, app.config['SECRET_KEY'], algorithm="HS256")
+            'name': f"{firstName} {lastName}",
+            # ... any other fields you want to include
+        }
+        db.Users.insert_one(user)
+        user_from_db = db.Users.find_one({'email': email})
+        token = jwt.encode({
+            'user_id': str(user_from_db['_id']),
+            'email': email,
+            'name': user['name'],
+            'exp': datetime.utcnow() + timedelta(minutes=30)
+        }, app.config['SECRET_KEY'], algorithm="HS256")
         return jsonify({"token": token}), 200
     else:
         return jsonify({'error': 'Not a school email'}), 400
@@ -65,7 +73,12 @@ def login():
     password = request.json['password']
     user = db.Users.find_one({'email': email})
     if user and check_password_hash(user['password'], password):
-        token = jwt.encode({'user': email, 'exp': datetime.utcnow() + timedelta(minutes=30)}, app.config['SECRET_KEY'], algorithm="HS256")
+        token = jwt.encode({
+            'user_id': str(user['_id']),
+            'email': user['email'],
+            'name': user.get('name', ''),
+            'exp': datetime.utcnow() + timedelta(minutes=30)
+        }, app.config['SECRET_KEY'], algorithm="HS256")
         return jsonify({"token": token}), 200
     else:
         return jsonify({'error': 'Invalid login credentials'}), 400

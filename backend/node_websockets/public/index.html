@@ -1,136 +1,53 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Ride-Sharing App</title>
-  <script src="/socket.io/socket.io.js"></script>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 20px;
-    }
-    button {
-      padding: 10px 20px;
-      margin: 5px;
-      cursor: pointer;
-    }
-    #toast {
-      visibility: hidden;
-      min-width: 250px;
-      margin-left: -125px;
-      background-color: #333;
-      color: #fff;
-      text-align: center;
-      border-radius: 2px;
-      padding: 16px;
-      position: fixed;
-      z-index: 1;
-      left: 50%;
-      bottom: 30px;
-      font-size: 17px;
-    }
-    #toast.show {
-      visibility: visible;
-      -webkit-animation: fadein 0.5s, fadeout 0.5s 2.5s;
-      animation: fadein 0.5s, fadeout 0.5s 2.5s;
-    }
-    @-webkit-keyframes fadein {
-      from {bottom: 0; opacity: 0;} 
-      to {bottom: 30px; opacity: 1;}
-    }
-    @keyframes fadein {
-      from {bottom: 0; opacity: 0;}
-      to {bottom: 30px; opacity: 1;}
-    }
-    @-webkit-keyframes fadeout {
-      from {bottom: 30px; opacity: 1;} 
-      to {bottom: 0; opacity: 0;}
-    }
-    @keyframes fadeout {
-      from {bottom: 30px; opacity: 1;}
-      to {bottom: 0; opacity: 0;}
-    }
-  </style>
-  <script>
-    const socket = io();
-
-function registerUser(type) {
-  socket.emit('register', { type });
-}
-
-function setAvailability(available) {
-  socket.emit('setAvailability', available);
-  document.getElementById('availabilityBtn').innerText = available ? 'Set Busy' : 'Set Available';
-}
-
-function requestRide() {
-  socket.emit('requestRide');
-}
-
-function completeRide() {
-  socket.emit('completeRide');
-  document.getElementById('dropOffBtn').style.display = 'none';
-}
-
-function showToast(message) {
-  const toast = document.getElementById('toast');
-  toast.innerText = message;
-  toast.className = 'show';
-  setTimeout(() => { toast.className = toast.className.replace('show', ''); }, 3000);
-}
-
-socket.on('update', (data) => {
-  if (data.drivers) {
-    document.getElementById('drivers').innerHTML = data.drivers.map((driver) => {
-      return `<li>${driver.driverId} - ${driver.available ? 'Available' : 'Busy'}</li>`;
-    }).join('');
-
-    const currentDriver = data.drivers.find((driver) => driver.driverId === socket.id);
-    if (currentDriver) {
-      document.getElementById('availabilityBtn').innerText = currentDriver.available ? 'Set Busy' : 'Set Available';
-    }
-  } else {
-    document.getElementById('drivers').innerHTML = '';
-  }
-
-  if (data.riders) {
-    document.getElementById('riders').innerHTML = data.riders.map((rider) => {
-      return `<li>${rider.riderId}</li>`;
-    }).join('');
-  } else {
-    document.getElementById('riders').innerHTML = '';
-  }
-});
-
-socket.on('rideRequested', (data) => {
-  const accept = confirm(`Rider ${data.riderId} requested a ride. Accept?`);
-  socket.emit('rideResponse', { accepted: accept, riderId: data.riderId });
-});
-
-socket.on('rideAccepted', (data) => {
-  if (socket.id === data.driverId) {
-    document.getElementById('dropOffBtn').style.display = 'block';
-  }
-  showToast(`Driver ${data.driverId} accepted your ride request.`);
-});
-
-socket.on('rideDeclined', () => {
-  showToast('No drivers available at the moment. Please try again later.');
-});
-
-  </script>
+    <meta charset="UTF-8">
+    <title>Server Dashboard</title>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        .container { max-width: 800px; margin: auto; }
+        .section { margin-bottom: 20px; }
+        .section-title { font-size: 20px; font-weight: bold; }
+        .list { list-style-type: none; padding: 0; }
+    </style>
 </head>
 <body>
-  <button onclick="registerUser('driver')">Register as Driver</button>
-  <button onclick="registerUser('rider')">Register as Rider</button>
-  <button id="availabilityBtn" onclick="setAvailability(true)">Set Available</button>
-  <button onclick="requestRide()">Request Ride</button>
-  <button id="dropOffBtn" onclick="completeRide()" style="display: none;">Complete Ride</button>
-  <h2>Drivers:</h2>
-  <ul id="drivers"></ul>
-  <h2>Riders:</h2>
-  <ul id="riders"></ul>
-  <div id="toast"></div>
+    <div class="container">
+        <div class="section" id="drivers-section">
+            <div class="section-title">Connected Drivers:</div>
+            <ul class="list" id="drivers-list"></ul>
+        </div>
+        <div class="section" id="riders-section">
+            <div class="section-title">Riders in Queue:</div>
+            <ul class="list" id="riders-list"></ul>
+        </div>
+    </div>
+
+    <script>
+        const fetchStatistics = async () => {
+            const response = await fetch('/statistics');
+            const data = await response.json();
+            const driversList = document.getElementById('drivers-list');
+            const ridersList = document.getElementById('riders-list');
+
+            driversList.innerHTML = '';
+            data.drivers.forEach(driver => {
+                const listItem = document.createElement('li');
+                listItem.textContent = `${driver.name} (${driver.userId}) - ${driver.available ? 'Available' : 'Busy'}`;
+                driversList.appendChild(listItem);
+            });
+
+            ridersList.innerHTML = '';
+            data.riders.forEach(rider => {
+                const listItem = document.createElement('li');
+                listItem.textContent = `${rider.name} (${rider.userId})`;
+                ridersList.appendChild(listItem);
+            });
+        };
+
+        // Fetch statistics every 5 seconds
+        setInterval(fetchStatistics, 5000);
+        fetchStatistics(); // Initial fetch
+    </script>
 </body>
 </html>

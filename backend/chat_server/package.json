@@ -1,8 +1,8 @@
 {
-  "name": "drivermatching",
+  "name": "chat_server",
   "version": "1.0.0",
   "description": "",
-  "main": "driverMatching.js",
+  "main": "main.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -11,13 +11,11 @@
   "license": "ISC",
   "dependencies": {
     "cors": "^2.8.5",
-    "express": "^4.18.3",
+    "express": "^4.19.2",
+    "http": "^0.0.1-security",
     "jsonwebtoken": "^9.0.2",
-    "mongodb": "^6.4.0",
-    "mongoose": "^8.2.3",
     "socket.io": "^4.7.5",
-    "websocket": "^1.0.34",
-    "websockets": "^0.2.0",
+    "uuid": "^9.0.1",
     "ws": "^8.16.0"
   }
 }

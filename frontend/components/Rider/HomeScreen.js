@@ -2,6 +2,9 @@ import React, { useState, useRef, useEffect } from 'react';
 import { StyleSheet, View, Text, TextInput, TouchableOpacity, Image, FlatList, SafeAreaView, Animated, ScrollView } from 'react-native';
 import { Ionicons, MaterialCommunityIcons, FontAwesome5 } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { decode as atob } from 'base-64';
+global.atob = atob;
+import { jwtDecode} from 'jwt-decode'; // Updated import
 
 // Dummy data for the flat list
 const data = [
@@ -185,8 +188,8 @@ const styles = StyleSheet.create({
       },
       filtersContainer: {
         flexDirection: 'row',
-        flexWrap: 'wrap',
-        marginBottom: 20,
+        paddingHorizontal: 5,
+        marginBottom: 0,
       },
       filterTag: {
         backgroundColor: '#f0f0f0',
@@ -239,32 +242,34 @@ const styles = StyleSheet.create({
       try {
         const token = await AsyncStorage.getItem('token');
         if (token) {
-          // Make a request to your Flask backend to get user information
-          const response = await fetch('https://login.saipriya.org/user', {
-            headers: {
-              'Authorization': `Bearer ${token}`,
-            },
+          const decoded = jwtDecode(token);
+          console.log(decoded);
+          // If the token doesn't have the complete user info or it's a newly registered user without a profile picture, set defaults
+          const userData = {
+            _id: decoded.user_id || 'default_id',
+            name: decoded.name || 'User', // Fallback to 'User' if name is not in token
+            email: decoded.email || 'user@example.com', // Fallback email
+            profilePic: decoded.profilePic || 'https://via.placeholder.com/150', // Placeholder image URL
+          };
+          setUser(userData);
+        } else {
+          // Set user to null or default values if there's no token
+          setUser({
+            _id: 'default_id',
+            name: 'User',
+            email: 'user@example.com',
+            profilePic: 'https://via.placeholder.com/150',
           });
-          
-          if (response.ok) {
-            try {
-              const data = await response.json();
-              setUser(data.user);
-            } catch (error) {
-              console.log('Failed to parse server response:', error);
-              // Handle the case when the server response is not a valid JSON string
-              // You can display an error message to the user or take appropriate action
-            }
-          } else {
-            console.log('Failed to retrieve user information');
-            // Handle error if user information retrieval fails
-            // You can display an error message to the user or take appropriate action
-          }
         }
       } catch (error) {
-        console.log('Error:', error);
-        // Handle network or other errors
-        // You can display an error message to the user or take appropriate action
+        console.error('Error fetching user info:', error);
+        // Fallback user data in case of an error
+        setUser({
+          _id: 'default_id',
+          name: 'User',
+          email: 'user@example.com',
+          profilePic: 'https://via.placeholder.com/150',
+        });
       }
     };
   
@@ -301,7 +306,7 @@ const styles = StyleSheet.create({
         {user ? (
           <>
             <Image source={{ uri: user.profilePic }} style={styles.profilePic} />
-            <Text style={styles.userName}>{user.firstName}</Text>
+            <Text style={styles.userName}>{user.name}</Text>
           </>
         ) : (
           <Text style={styles.userName}>Loading user...</Text>
@@ -321,7 +326,9 @@ const styles = StyleSheet.create({
         </View>
         <Text style={styles.sectionHeader}>Popular Destinations</Text>
         <View style={styles.filtersContainer}>
-          {['All', 'Nightlife', 'Grocery', 'Party', 'Frat', 'Venue', 'Bar', 'Brewery'].map(renderFilterTag)}
+          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+            {['All', 'Nightlife', 'Grocery', 'Party', 'Frat', 'Venue', 'Bar', 'Brewery'].map(renderFilterTag)}
+          </ScrollView>
         </View>
         <FlatList
           data={filteredData}

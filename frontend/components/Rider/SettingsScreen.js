@@ -109,11 +109,12 @@ const SettingsScreen = ({navigation}) => {
       </TouchableOpacity>
 
       <TouchableOpacity
-        style={styles.button}
-        onPress={() => navigation.navigate('DriverTabs')}
-      >
-        <Text style={styles.buttonText}>Switch to Driver Mode</Text>
-      </TouchableOpacity>
+  style={styles.button}
+  onPress={() => navigation.openDrawer()}
+>
+  <Text style={styles.buttonText}>Open Drawer</Text>
+</TouchableOpacity>
+
 
       {/* Additional settings options */}
       

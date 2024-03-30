@@ -26,7 +26,7 @@ const LoginScreen = ({ navigation }) => {
           AsyncStorage.setItem('token', data.token)
             .then(() => {
               // Navigate to the desired screen after successful login
-              navigation.navigate('DrawerNavigator');
+              navigation.replace('DrawerNavigator');
             });
         } else {
           // Handle login error
