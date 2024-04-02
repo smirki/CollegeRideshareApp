@@ -12,7 +12,7 @@ const SignUpScreen = ({ navigation }) => {
   const [showPassword, setShowPassword] = useState(false);
 
   const handleSignup = () => {
-    fetch('https://login.saipriya.org/register', {
+    fetch(`https://${process.env.EXPO_PUBLIC_API_LOGIN_API}/register`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

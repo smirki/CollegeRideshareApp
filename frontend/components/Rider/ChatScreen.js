@@ -31,7 +31,7 @@ const ChatScreen = () => {
   };
 
   const connectToSocket = (token) => {
-    const newSocket = io('https://chatme.saipriya.org', {
+    const newSocket = io(`https://${process.env.EXPO_PUBLIC_API_CHAT_API}`, {
       query: { token },
     });
 
