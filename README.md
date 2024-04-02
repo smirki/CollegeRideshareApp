@@ -35,7 +35,7 @@ Ugo's development workflow is centered around the `dev` branch, which serves as 
 ### Environment Setup
 
 -   Ask a project maintainer for the `.env` file to connect to MongoDB.
--   Ensure Docker is installed and running for API services.
+-   Ensure Docker is installed and running for API services..
 
 Technology Stack
 ----------------
