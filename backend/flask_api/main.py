@@ -8,7 +8,7 @@ app.config['CORS_HEADERS'] = 'Content-Type'
 app.config['SECRET_KEY'] = 'mysecretkey'
 
 # Update CORS configuration to include the new origin
-CORS(app, resources={r"/*": {"origins": ["http://localhost:8081", "https://expo.saipriya.org"]}})
+CORS(app, resources={r"/*": {"origins": ["http://localhost:8081", " http://localhost:8081", "https://expo.saipriya.org"]}})
 
 import Database.db
 import Routes.auth_routes

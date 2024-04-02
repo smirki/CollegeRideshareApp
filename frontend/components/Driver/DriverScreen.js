@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, StyleSheet, TouchableOpacity, Text } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, Text, Modal } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { decode as atob } from 'base-64';
 global.atob = atob;
@@ -10,29 +10,45 @@ const DriverScreen = () => {
   const [isAvailable, setIsAvailable] = useState(false);
   const [rideRequest, setRideRequest] = useState(null);
   const [user, setUser] = useState(null);
+  const [showModal, setShowModal] = useState(false);
   const socketRef = useRef(null);
 
   useEffect(() => {
-    fetchUserInfo();
+    const initializeApp = async () => {
+      const token = await fetchUserInfo();
+      if (token) {
+        setUser((prevUser) => ({ ...prevUser, token }));
+      }
+    };
+    initializeApp();
+
     return () => {
       disconnectWebSocket();
     };
   }, []);
+
+  useEffect(() => {
+    if (user && user.token) {
+      connectWebSocket(user.token);
+    }
+  }, [user]);
 
   const fetchUserInfo = async () => {
     try {
       const token = await AsyncStorage.getItem('token');
       if (token) {
         const decoded = jwtDecode(token);
-        setUser({
+        const userData = {
           _id: decoded.user_id,
           name: decoded.name,
-        });
-        connectWebSocket(token);
+        };
+        setUser(userData);
+        return token;
       }
     } catch (error) {
       console.log('Error:', error);
     }
+    return null;
   };
 
   const connectWebSocket = (token) => {
@@ -42,17 +58,20 @@ const DriverScreen = () => {
 
     socketRef.current.on('connect', () => {
       console.log('Connected to server');
-      const registerDriver = {
-        type: 'driver',
-        driverId: user._id,
-        available: isAvailable,
-      };
-      socketRef.current.emit('register', registerDriver);
+      if (user) {
+        const registerDriver = {
+          type: 'driver',
+          driverId: user._id,
+          available: isAvailable,
+        };
+        socketRef.current.emit('register', registerDriver);
+      }
     });
 
     socketRef.current.on('rideRequested', (data) => {
       console.log(`Ride requested: ${data.rideId} from rider ${data.riderId} (${data.riderName})`);
       setRideRequest(data);
+      setShowModal(true);
     });
 
     socketRef.current.on('disconnect', () => {
@@ -69,7 +88,9 @@ const DriverScreen = () => {
   const toggleAvailability = () => {
     setIsAvailable((current) => {
       const newStatus = !current;
-      socketRef.current.emit('setAvailability', { available: newStatus });
+      if (socketRef.current) {
+        socketRef.current.emit('setAvailability', { available: newStatus });
+      }
       return newStatus;
     });
   };
@@ -89,6 +110,7 @@ const DriverScreen = () => {
       });
     }
     setRideRequest(null);
+    setShowModal(false);
   };
 
   return (
@@ -100,25 +122,34 @@ const DriverScreen = () => {
       >
         <Text style={styles.availabilityButtonText}>{isAvailable ? 'Available' : 'Unavailable'}</Text>
       </TouchableOpacity>
-      {rideRequest && (
-        <View style={styles.rideRequestContainer}>
-          <Text>Ride Request from {rideRequest.riderName}</Text>
-          <View style={styles.rideRequestButtons}>
-            <TouchableOpacity
-              style={[styles.rideRequestButton, styles.acceptButton]}
-              onPress={() => handleRideRequest(true)}
-            >
-              <Text style={styles.rideRequestButtonText}>Accept</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.rideRequestButton, styles.declineButton]}
-              onPress={() => handleRideRequest(false)}
-            >
-              <Text style={styles.rideRequestButtonText}>Decline</Text>
-            </TouchableOpacity>
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={showModal}
+        onRequestClose={() => {
+          setShowModal(false);
+        }}
+      >
+        <View style={styles.centeredView}>
+          <View style={styles.modalView}>
+            <Text style={styles.modalText}>Ride Request from {rideRequest ? rideRequest.riderName : ''}</Text>
+            <View style={styles.rideRequestButtons}>
+              <TouchableOpacity
+                style={[styles.rideRequestButton, styles.acceptButton]}
+                onPress={() => handleRideRequest(true)}
+              >
+                <Text style={styles.rideRequestButtonText}>Accept</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.rideRequestButton, styles.declineButton]}
+                onPress={() => handleRideRequest(false)}
+              >
+                <Text style={styles.rideRequestButtonText}>Decline</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
-      )}
+      </Modal>
     </View>
   );
 };
@@ -143,9 +174,30 @@ const styles = StyleSheet.create({
     color: 'white',
     fontWeight: 'bold',
   },
-  rideRequestContainer: {
-    marginTop: 20,
+  centeredView: {
+    flex: 1,
+    justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.5)',
+  },
+  modalView: {
+    margin: 20,
+    backgroundColor: 'white',
+    borderRadius: 20,
+    padding: 35,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  modalText: {
+    marginBottom: 15,
+    textAlign: 'center',
   },
   rideRequestButtons: {
     flexDirection: 'row',

@@ -21,7 +21,6 @@ mongoose.connect('mongodb+srv://manavmaj2001:pEUHcpVLkrUys5VP@ugocluser.qv3ihnu.
   useUnifiedTopology: true,
 }).then(async () => {
   console.log('Connected to MongoDB');
-  // Clear the database collections
   await Ride.deleteMany({});
   await ActiveDriver.deleteMany({});
   await Rider.deleteMany({});
@@ -64,6 +63,9 @@ function verifyToken(token) {
   });
 }
 
+// A mapping of driver user IDs to socket IDs
+const userSocketIds = {};
+
 io.use(async (socket, next) => {
   const token = socket.handshake.query.token;
   try {
@@ -77,15 +79,16 @@ io.use(async (socket, next) => {
 
 io.on('connection', (socket) => {
   console.log('New client connected:', socket.id);
-  console.log(`New client connected with ID: ${socket.id} on ${new Date().toISOString()}`);
 
   socket.on('register', async (data) => {
     console.log(`Register event received from ${socket.user.name} (${socket.user.userId}):`, data);
     try {
       if (data.type === 'driver') {
         await ActiveDriver.create({ driverId: socket.user.userId, available: false });
+        userSocketIds[socket.user.userId] = socket.id;
       } else if (data.type === 'rider') {
         await Rider.create({ riderId: socket.user.userId });
+        userSocketIds[socket.user.userId] = socket.id;
       }
       const drivers = await ActiveDriver.find();
       const riders = await Rider.find();
@@ -119,9 +122,26 @@ io.on('connection', (socket) => {
       console.log(`Ride request received from rider ${data.userId} (${socket.user.name})`);
       const driver = await findNextAvailableDriver();
       if (driver) {
-        io.to(driver.driverId).emit('rideRequested', { rideId: ride._id, riderId: data.userId, riderName: socket.user.name });
+        const driverSocketId = userSocketIds[driver.driverId];
+        if (driverSocketId) {
+          io.to(driverSocketId).emit('rideRequested', { 
+            rideId: ride._id, 
+            riderId: data.userId, 
+            riderName: socket.user.name 
+          });
+          console.log("Ride request emitted to driver", driver.driverId);
+        } else {
+          console.log("Driver not connected", driver.driverId);
+        }
       } else {
-        io.to(data.userId).emit('rideDeclined');
+        // No available driver found, emit 'rideDeclined' to the rider
+        const riderSocketId = userSocketIds[data.userId];
+        if (riderSocketId) {
+          io.to(riderSocketId).emit('rideDeclined');
+          console.log("Ride declined emitted to rider", data.userId);
+        } else {
+          console.log("Rider not connected", data.userId);
+        }
       }
     } catch (error) {
       console.error('Error requesting ride:', error);
@@ -137,13 +157,31 @@ io.on('connection', (socket) => {
         await ride.save();
         io.to(ride.riderId).emit('rideAccepted', { driverId: socket.user.userId });
       } else {
-        const nextDriver = await findNextAvailableDriver();
+        // Set the current driver's availability to true
+        await ActiveDriver.findOneAndUpdate({ driverId: socket.user.userId }, { available: true });
+  
+        // Keep track of declined drivers
+        ride.declinedDrivers = ride.declinedDrivers || [];
+        ride.declinedDrivers.push(socket.user.userId);
+        await ride.save();
+  
+        const nextDriver = await findNextAvailableDriver(ride.declinedDrivers);
         if (nextDriver) {
-          io.to(nextDriver.driverId).emit('rideRequested', { rideId: ride._id, riderId: ride.riderId });
+          const nextDriverSocketId = userSocketIds[nextDriver.driverId];
+          if (nextDriverSocketId) {
+            io.to(nextDriverSocketId).emit('rideRequested', { 
+              rideId: ride._id, 
+              riderId: ride.riderId, 
+              riderName: ride.riderName 
+            });
+          } else {
+            console.log("Next driver not connected", nextDriver.driverId);
+          }
         } else {
           ride.status = 'declined';
           await ride.save();
           io.to(ride.riderId).emit('rideDeclined');
+          console.log("Ride declined emitted to rider", ride.riderId);
         }
         console.log(`Driver ${socket.user.userId} ${data.accepted ? 'accepted' : 'declined'} ride request ${data.rideId}`);
       }
@@ -151,7 +189,7 @@ io.on('connection', (socket) => {
       console.error('Error responding to ride request:', error);
     }
   });
-
+  
   socket.on('completeRide', async (data) => {
     try {
       const ride = await Ride.findById(data.rideId);
@@ -168,37 +206,32 @@ io.on('connection', (socket) => {
   });
 
   socket.on('disconnect', async () => {
-  console.log(`Client with ID: ${socket.id} disconnected on ${new Date().toISOString()}`);
-  console.log('Client disconnected:', socket.id);
-  try {
-    await ActiveDriver.findOneAndDelete({ driverId: socket.user.userId });
-    await Rider.findOneAndDelete({ riderId: socket.user.userId });
-    const drivers = await ActiveDriver.find();
-    const riders = await Rider.find();
-    
-    io.emit('update', { drivers, riders });
-  } catch (error) {
-    console.error('Error removing user on disconnect:', error);
-  }
-});socket.on('disconnect', async () => {
-  console.log(`Client with ID: ${socket.id} disconnected on ${new Date().toISOString()}`);
-  console.log('Client disconnected:', socket.id);
-  try {
-    await ActiveDriver.findOneAndDelete({ driverId: socket.user.userId });
-    await Rider.findOneAndDelete({ riderId: socket.user.userId });
-    const drivers = await ActiveDriver.find();
-    const riders = await Rider.find();
-    
-    io.emit('update', { drivers, riders });
-  } catch (error) {
-    console.error('Error removing user on disconnect:', error);
-  }
-});
+    // Find the user ID associated with the disconnecting socket
+    const disconnectedUserId = Object.keys(userSocketIds).find(key => userSocketIds[key] === socket.id);
+    if (disconnectedUserId) {
+      console.log(`User with ID: ${disconnectedUserId} disconnected.`);
+      delete userSocketIds[disconnectedUserId];
+
+      // Additional logic to clean up after driver/rider disconnect
+      if (socket.user && socket.user.userId) {
+        await ActiveDriver.findOneAndDelete({ driverId: socket.user.userId });
+        await Rider.findOneAndDelete({ riderId: socket.user.userId });
+        const drivers = await ActiveDriver.find();
+        const riders = await Rider.find();
+        io.emit('update', { drivers, riders });
+      }
+    }
+    console.log(`Client disconnected: ${socket.id}`);
+  });
 });
 
-async function findNextAvailableDriver() {
+async function findNextAvailableDriver(excludedDriverIds = []) {
   try {
-    const driver = await ActiveDriver.findOne({ available: true });
+    // Find the first available driver who is not in the excludedDriverIds list
+    const driver = await ActiveDriver.findOne({ available: true, driverId: { $nin: excludedDriverIds } });
+    if (!driver) {
+      console.log('No available drivers');
+    }
     return driver;
   } catch (error) {
     console.error('Error finding next available driver:', error);
@@ -210,7 +243,7 @@ app.get('/rides', async (req, res) => {
   try {
     const token = req.headers.authorization.split(' ')[1];
     const decoded = jwt.verify(token, 'mysecretkey');
-    const userId = decoded.user;
+    const userId = decoded.user_id;
 
     const rides = await Ride.find({ riderId: userId });
     res.json({ rides });

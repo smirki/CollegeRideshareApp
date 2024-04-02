@@ -4,78 +4,25 @@ import io from 'socket.io-client';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { decode as atob } from 'base-64';
 global.atob = atob;
-import { jwtDecode} from 'jwt-decode'; // Updated import
+import { jwtDecode } from 'jwt-decode';
 
 const RideConfirmationScreen = () => {
-  const [drivers, setDrivers] = useState(null);
+  const [drivers, setDrivers] = useState([]);
   const [riders, setRiders] = useState([]);
   const [user, setUser] = useState(null);
   const [isConnected, setIsConnected] = useState(false);
   const [rideStatus, setRideStatus] = useState(null);
   const socketRef = useRef(null);
 
-  const fetchUserInfo = async () => {
-    try {
-      const token = await AsyncStorage.getItem('token');
-      if (token) {
-        const decoded = jwtDecode(token);
-        setUser({
-          _id: decoded.user_id,
-          name: decoded.name,
-        });
-        connectWebSocket(token);
-      }
-    } catch (error) {
-      console.log('Error:', error);
-    }
-  };
-
-  const connectWebSocket = (token) => {
-    socketRef.current = io('https://matching.saipriya.org', {
-      query: { token },
-    });
-  
-    socketRef.current.on('connect', () => {
-      console.log('Connected to server');
-      setIsConnected(true);
-      if (user) {
-        const registerRider = {
-          type: 'register',
-          riderId: user._id,
-        };
-        socketRef.current.emit('register', registerRider);
-      }
-    });
-
-    socketRef.current.on('update', (data) => {
-      setDrivers(data.drivers || []);
-      setRiders(data.riders || []);
-    }); 
-
-    socketRef.current.on('rideAccepted', (data) => {
-      console.log(`Rider ${user._id} (${user.name})'s ride request accepted by driver ${data.driverId}`);
-      setRideStatus('accepted');
-      setDriver(data.driverId);
-    });
-
-    socketRef.current.on('rideDeclined', () => {
-      console.log('Ride declined');
-      setRideStatus('declined');
-      alert('No drivers available at the moment. Please try again later.');
-    });
-
-    socketRef.current.on('disconnect', () => {
-      console.log(`Disconnected from server with socket ID: ${socketRef.current.id}`);
-      setIsConnected(false);
-    });
-
-    socketRef.current.on('connect_error', (error) => {
-      console.log(`Connection error: ${error}`);
-    });
-  };
-
   useEffect(() => {
-    fetchUserInfo();
+    const initializeApp = async () => {
+      const token = await fetchUserInfo();
+      if (token) {
+        setUser((prevUser) => ({ ...prevUser, token }));
+      }
+    };
+    initializeApp();
+
     return () => {
       if (socketRef.current) {
         socketRef.current.disconnect();
@@ -83,16 +30,98 @@ const RideConfirmationScreen = () => {
     };
   }, []);
 
+  useEffect(() => {
+    if (user && user.token) {
+      connectWebSocket(user.token);
+    }
+  }, [user]);
+
+  const fetchUserInfo = async () => {
+    try {
+      const token = await AsyncStorage.getItem('token');
+      if (token) {
+        const decoded = jwtDecode(token);
+        const userData = {
+          _id: decoded.user_id || 'default_id',
+          name: decoded.name || 'User',
+          email: decoded.email || 'user@example.com',
+          profilePic: decoded.profilePic || 'https://via.placeholder.com/150',
+        };
+        setUser(userData);
+        return token;
+      } else {
+        setUser({
+          _id: 'default_id',
+          name: 'User',
+          email: 'user@example.com',
+          profilePic: 'https://via.placeholder.com/150',
+        });
+        return null;
+      }
+    } catch (error) {
+      console.error('Error fetching user info:', error);
+      setUser({
+        _id: 'default_id',
+        name: 'User',
+        email: 'user@example.com',
+        profilePic: 'https://via.placeholder.com/150',
+      });
+      return null;
+    }
+  };
+
+  const connectWebSocket = (token) => {
+    socketRef.current = io('https://matching.saipriya.org', {
+      query: { token },
+    });
+
+    socketRef.current.on('connect', () => {
+      console.log('Connected to server');
+      if (user) {
+        const registerRider = {
+          type: 'register',
+          riderId: user._id,
+        };
+        socketRef.current.emit('register', registerRider);
+      }
+      setIsConnected(true);
+    });
+
+    socketRef.current.on('update', (data) => {
+      setDrivers(data.drivers || []);
+      setRiders(data.riders || []);
+    });
+
+    socketRef.current.on('rideAccepted', (data) => {
+      console.log(`Ride accepted by driver ${data.driverId}`);
+      setRideStatus('accepted');
+    });
+
+    socketRef.current.on('rideDeclined', () => {
+      console.log('Ride declined');
+      setRideStatus('declined');
+    });
+
+    socketRef.current.on('disconnect', () => {
+      console.log('Disconnected from server');
+      setIsConnected(false);
+    });
+
+    socketRef.current.on('connect_error', (error) => {
+      console.log('Connection error:', error);
+    });
+  };
+
   const handleRequestRide = () => {
     if (user) {
-      socketRef.current.emit('requestRide', {
+      const rideRequest = {
         userId: user._id,
         userName: user.name,
         pickup: 'User Pickup Location',
         dropoff: 'User Dropoff Location',
-      });
+      };
+      socketRef.current.emit('requestRide', rideRequest);
       setRideStatus('requesting');
-      console.log(`Rider ${user._id} (${user.name}) requested a ride`);
     }
   };
 
