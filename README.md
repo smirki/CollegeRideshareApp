@@ -1,4 +1,4 @@
-<img src="![path-to-your-logo](https://github.com/smirki/Ugo/blob/dev/frontend/assets/ugoicon.png)" alt="Ugo Logo" width="200"/> 
+<img src="https://github.com/smirki/Ugo/blob/dev/frontend/assets/ugoicon.png" alt="Ugo Logo" width="200"/> 
 Ugo - College Rideshare App
 ===========================
 
