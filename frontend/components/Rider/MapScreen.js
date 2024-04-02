@@ -53,7 +53,7 @@ const MapScreen = () => {
     }
     try {
       const response = await fetch(
-        `https://pelias.saipriya.org/v1/autocomplete?text=${encodeURIComponent(
+        `https://${process.env.EXPO_PUBLIC_API_PELIAS_API}/v1/autocomplete?text=${encodeURIComponent(
           query
         )}&focus.point.lat=35.25&focus.point.lon=-80.85`
       );
@@ -90,7 +90,7 @@ const MapScreen = () => {
       return;
     }
 
-    const url = `https://routing.saipriya.org/ors/v2/directions/driving-car?start=${pickupLocation.longitude},${pickupLocation.latitude}&end=${destinationLocation.longitude},${destinationLocation.latitude}`;
+    const url = `https://${process.env.EXPO_PUBLIC_API_ROUTING_API}/ors/v2/directions/driving-car?start=${pickupLocation.longitude},${pickupLocation.latitude}&end=${destinationLocation.longitude},${destinationLocation.latitude}`;
     try {
       const response = await fetch(url);
       const data = await response.json();

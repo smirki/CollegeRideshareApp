@@ -52,7 +52,7 @@ const DriverScreen = () => {
   };
 
   const connectWebSocket = (token) => {
-    socketRef.current = io('https://matching.saipriya.org', {
+    socketRef.current = io(`https://${process.env.EXPO_PUBLIC_API_MATCHING_API}`, {
       query: { token },
     });
 

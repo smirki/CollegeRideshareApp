@@ -9,7 +9,7 @@ const LoginScreen = ({ navigation }) => {
   const [showPassword, setShowPassword] = useState(false);
 
   const handleLogin = () => {
-    fetch('https://login.saipriya.org/login', {
+    fetch(`https://${process.env.EXPO_PUBLIC_API_LOGIN_API}/login`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
