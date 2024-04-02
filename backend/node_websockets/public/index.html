@@ -1,132 +1,53 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Ride Request App</title>
+    <meta charset="UTF-8">
+    <title>Server Dashboard</title>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        .container { max-width: 800px; margin: auto; }
+        .section { margin-bottom: 20px; }
+        .section-title { font-size: 20px; font-weight: bold; }
+        .list { list-style-type: none; padding: 0; }
+    </style>
 </head>
 <body>
-  <h1>Ride Request App</h1>
-  <div>
-    <label for="role">Select Role:</label>
-    <select id="role">
-      <option value="driver">Driver</option>
-      <option value="rider">Rider</option>
-    </select>
-    <button id="joinButton">Join</button>
-  </div>
-  <div id="riderSection" style="display: none;">
-    <button id="requestButton">Request Ride</button>
-    <div id="rideStatus"></div>
-  </div>
-  <div id="driverSection" style="display: none;">
-    <div id="rideRequest"></div>
-    <button id="acceptButton" style="display: none;">Accept Ride</button>
-    <button id="declineButton" style="display: none;">Decline Ride</button>
-  </div>
-
-  <div id="userLists">
-    <h2>User Lists</h2>
-    <div>
-      <h3>Drivers:</h3>
-      <ul id="driverList"></ul>
+    <div class="container">
+        <div class="section" id="drivers-section">
+            <div class="section-title">Connected Drivers:</div>
+            <ul class="list" id="drivers-list"></ul>
+        </div>
+        <div class="section" id="riders-section">
+            <div class="section-title">Riders in Queue:</div>
+            <ul class="list" id="riders-list"></ul>
+        </div>
     </div>
-    <div>
-      <h3>Riders:</h3>
-      <ul id="riderList"></ul>
-    </div>
-  </div>
 
-  <script>
-    const ws = new WebSocket('ws://localhost:3000');
-    let userId;
-    let currentRiderId;
+    <script>
+        const fetchStatistics = async () => {
+            const response = await fetch('/statistics');
+            const data = await response.json();
+            const driversList = document.getElementById('drivers-list');
+            const ridersList = document.getElementById('riders-list');
 
-    ws.onopen = () => {
-      console.log('Connected to server');
-    };
+            driversList.innerHTML = '';
+            data.drivers.forEach(driver => {
+                const listItem = document.createElement('li');
+                listItem.textContent = `${driver.name} (${driver.userId}) - ${driver.available ? 'Available' : 'Busy'}`;
+                driversList.appendChild(listItem);
+            });
 
-    ws.onmessage = (event) => {
-      const data = JSON.parse(event.data);
+            ridersList.innerHTML = '';
+            data.riders.forEach(rider => {
+                const listItem = document.createElement('li');
+                listItem.textContent = `${rider.name} (${rider.userId})`;
+                ridersList.appendChild(listItem);
+            });
+        };
 
-      if (data.type === 'userLists') {
-      updateUserLists(data.drivers, data.riders);
-    }
-
-      if (data.type === 'rideRequest') {
-        currentRiderId = data.riderId;
-        document.getElementById('rideRequest').textContent = `Ride request from Rider ${data.riderId}`;
-        document.getElementById('acceptButton').style.display = 'inline';
-        document.getElementById('declineButton').style.display = 'inline';
-      } else if (data.type === 'rideAccepted') {
-        document.getElementById('rideStatus').textContent = `Driver ${data.driverId} accepted your ride request`;
-      } else if (data.type === 'noDriversAvailable') {
-        document.getEleme
-        
-        ntById('rideStatus').textContent = 'No drivers available at the moment';
-      }
-    };
-
-    document.getElementById('joinButton').addEventListener('click', () => {
-      const role = document.getElementById('role').value;
-      userId = Math.random().toString(36).substr(2, 9);
-
-      ws.send(JSON.stringify({ type: 'join', role, id: userId }));
-
-      if (role === 'driver') {
-        document.getElementById('driverSection').style.display = 'block';
-      } else if (role === 'rider') {
-        document.getElementById('riderSection').style.display = 'block';
-      }
-    });
-
-    document.getElementById('requestButton').addEventListener('click', () => {
-      ws.send(JSON.stringify({ type: 'requestRide', id: userId }));
-    });
-
-    document.getElementById('acceptButton').addEventListener('click', () => {
-      ws.send(JSON.stringify({ type: 'acceptRide', driverId: userId, riderId: currentRiderId }));
-      document.getElementById('rideRequest').textContent = '';
-      document.getElementById('acceptButton').style.display = 'none';
-      document.getElementById('declineButton').style.display = 'none';
-    });
-
-    document.getElementById('declineButton').addEventListener('click', () => {
-      ws.send(JSON.stringify({ type: 'declineRide', driverId: userId, riderId: currentRiderId }));
-      document.getElementById('rideRequest').textContent = '';
-      document.getElementById('acceptButton').style.display = 'none';
-      document.getElementById('declineButton').style.display = 'none';
-    });
-    function updateUserLists(drivers, riders) {
-    const driverList = document.getElementById('driverList');
-    const riderList = document.getElementById('riderList');
-
-    driverList.innerHTML = '';
-    riderList.innerHTML = '';
-
-    drivers.forEach((driver) => {
-      const listItem = document.createElement('li');
-      listItem.textContent = `${driver.id} (${getStatusText(driver.status)})`;
-      driverList.appendChild(listItem);
-    });
-
-    riders.forEach((rider) => {
-      const listItem = document.createElement('li');
-      listItem.textContent = `${rider.id} (${getStatusText(rider.status)})`;
-      riderList.appendChild(listItem);
-    });
-  }
-
-  function getStatusText(status) {
-    switch (status) {
-      case 'available':
-        return 'Available';
-      case 'busy':
-        return 'Busy';
-      case 'choosing':
-        return 'Choosing a Ride';
-      default:
-        return '';
-    }
-  }
-</script>
+        // Fetch statistics every 5 seconds
+        setInterval(fetchStatistics, 5000);
+        fetchStatistics(); // Initial fetch
+    </script>
 </body>
 </html>

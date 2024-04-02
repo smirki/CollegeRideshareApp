@@ -1,54 +1,157 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image } from 'react-native';
+import React, { useEffect, useState, useRef } from 'react';
+import { View, Text, StyleSheet, FlatList, Button } from 'react-native';
+import io from 'socket.io-client';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { decode as atob } from 'base-64';
+global.atob = atob;
+import { jwtDecode } from 'jwt-decode';
 
-const RideConfirmation = ({ route }) => {
-  const { pickupAddress, destinationAddress } = route.params || {};
-  const [pickup, setPickup] = useState(pickupAddress || 'Default Pickup Address');
-  const [destination, setDestination] = useState(destinationAddress || 'Default Destination Address');
-  const [riders, setRiders] = useState('1');
-  const [estimatedCost, setEstimatedCost] = useState('$10.00');
+const RideConfirmationScreen = () => {
+  const [drivers, setDrivers] = useState([]);
+  const [riders, setRiders] = useState([]);
+  const [user, setUser] = useState(null);
+  const [isConnected, setIsConnected] = useState(false);
+  const [rideStatus, setRideStatus] = useState(null);
+  const socketRef = useRef(null);
+
+  useEffect(() => {
+    const initializeApp = async () => {
+      const token = await fetchUserInfo();
+      if (token) {
+        setUser((prevUser) => ({ ...prevUser, token }));
+      }
+    };
+    initializeApp();
+
+    return () => {
+      if (socketRef.current) {
+        socketRef.current.disconnect();
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    if (user && user.token) {
+      connectWebSocket(user.token);
+    }
+  }, [user]);
+
+  const fetchUserInfo = async () => {
+    try {
+      const token = await AsyncStorage.getItem('token');
+      if (token) {
+        const decoded = jwtDecode(token);
+        const userData = {
+          _id: decoded.user_id || 'default_id',
+          name: decoded.name || 'User',
+          email: decoded.email || 'user@example.com',
+          profilePic: decoded.profilePic || 'https://via.placeholder.com/150',
+        };
+        setUser(userData);
+        return token;
+      } else {
+        setUser({
+          _id: 'default_id',
+          name: 'User',
+          email: 'user@example.com',
+          profilePic: 'https://via.placeholder.com/150',
+        });
+        return null;
+      }
+    } catch (error) {
+      console.error('Error fetching user info:', error);
+      setUser({
+        _id: 'default_id',
+        name: 'User',
+        email: 'user@example.com',
+        profilePic: 'https://via.placeholder.com/150',
+      });
+      return null;
+    }
+  };
+
+  const connectWebSocket = (token) => {
+    socketRef.current = io('https://matching.saipriya.org', {
+      query: { token },
+    });
+
+    socketRef.current.on('connect', () => {
+      console.log('Connected to server');
+      if (user) {
+        const registerRider = {
+          type: 'register',
+          riderId: user._id,
+        };
+        socketRef.current.emit('register', registerRider);
+      }
+      setIsConnected(true);
+    });
+
+    socketRef.current.on('update', (data) => {
+      setDrivers(data.drivers || []);
+      setRiders(data.riders || []);
+    });
+
+    socketRef.current.on('rideAccepted', (data) => {
+      console.log(`Ride accepted by driver ${data.driverId}`);
+      setRideStatus('accepted');
+    });
+
+    socketRef.current.on('rideDeclined', () => {
+      console.log('Ride declined');
+      setRideStatus('declined');
+    });
+
+    socketRef.current.on('disconnect', () => {
+      console.log('Disconnected from server');
+      setIsConnected(false);
+    });
+
+    socketRef.current.on('connect_error', (error) => {
+      console.log('Connection error:', error);
+    });
+  };
+
+  const handleRequestRide = () => {
+    if (user) {
+      const rideRequest = {
+        userId: user._id,
+        userName: user.name,
+        pickup: 'User Pickup Location',
+        dropoff: 'User Dropoff Location',
+      };
+      socketRef.current.emit('requestRide', rideRequest);
+      setRideStatus('requesting');
+    }
+  };
 
   return (
     <View style={styles.container}>
-      <Image
-        source={require('../../assets/car.webp')} // Replace with your image path
-        style={styles.topImage}
+      <Text style={styles.heading}>Drivers:</Text>
+      <FlatList
+        data={drivers}
+        keyExtractor={(item) => item.driverId}
+        renderItem={({ item }) => (
+          <Text>{item.driverId} - {item.available ? 'Available' : 'Busy'}</Text>
+        )}
       />
-      <Text style={styles.headerText}>Book Your Ride</Text>
-
-      <View style={styles.inputContainer}>
-        <TextInput
-          style={styles.input}
-          onChangeText={setPickup}
-          value={pickup}
-          placeholder="Pick Up"
+      <Text style={styles.heading}>Riders:</Text>
+      <FlatList
+        data={riders}
+        keyExtractor={(item) => item.riderId}
+        renderItem={({ item }) => (
+          <Text>{item.riderId}</Text>
+        )}
+      />
+      {isConnected && (
+        <Button
+          title={rideStatus === 'requesting' ? 'Requesting Ride...' : 'Request Ride'}
+          onPress={handleRequestRide}
+          disabled={rideStatus === 'requesting'}
         />
-      </View>
-
-      <View style={styles.inputContainer}>
-        <TextInput
-          style={styles.input}
-          onChangeText={setDestination}
-          value={destination}
-          placeholder="Destination"
-        />
-      </View>
-
-      <View style={styles.inputContainer}>
-        <TextInput
-          style={styles.input}
-          onChangeText={setRiders}
-          value={riders}
-          placeholder="Number of Riders"
-          keyboardType="numeric"
-        />
-      </View>
-
-      <Text style={styles.estimatedCostText}>Estimated Cost: {estimatedCost}</Text>
-
-      <TouchableOpacity style={styles.findDriverButton} onPress={() => {}}>
-        <Text style={styles.findDriverButtonText}>Confirm Ride</Text>
-      </TouchableOpacity>
+      )}
+      {rideStatus === 'accepted' && <Text style={styles.status}>Ride Accepted!</Text>}
+      {rideStatus === 'declined' && <Text style={styles.status}>Ride Declined.</Text>}
     </View>
   );
 };
@@ -56,61 +159,21 @@ const RideConfirmation = ({ route }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFF',
-    padding: 20,
+    paddingHorizontal: 20,
+    paddingVertical: 30,
   },
-  topImage: {
-    width: '100%',
-    height: 200, // Set this to the aspect ratio of your image
-    resizeMode: 'cover',
-    marginBottom: 20,
-  },
-  headerText: {
-    fontSize: 22,
+  heading: {
+    fontSize: 18,
     fontWeight: 'bold',
-    color: 'black',
-    alignSelf: 'flex-start',
-    marginBottom: 20,
-  },
-  inputContainer: {
-    width: '100%',
-    marginBottom: 15,
-  },
-  input: {
-    backgroundColor: 'white',
-    borderRadius: 5,
-    paddingVertical: 10,
-    paddingHorizontal: 15,
-    fontSize: 16,
-    borderWidth: 1,
-    borderColor: '#ddd',
-    elevation: 3,
-    shadowColor: '#000',
-    shadowOffset: { width: 1, height: 3},
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
+    marginTop: 20,
     marginBottom: 10,
   },
-  estimatedCostText: {
+  status: {
     fontSize: 18,
-    fontWeight: '500',
-    color: '#333',
-    alignSelf: 'center',
-    marginVertical: 20,
-  },
-  findDriverButton: {
-    backgroundColor: '#FFCC00',
-    paddingVertical: 15,
-    borderRadius: 30,
-    width: '100%',
-    alignItems: 'center',
-    marginTop: 10,
-  },
-  findDriverButtonText: {
-    fontSize: 18,
-    color: 'black',
     fontWeight: 'bold',
+    marginTop: 20,
+    textAlign: 'center',
   },
 });
 
-export default RideConfirmation;
+export default RideConfirmationScreen;

@@ -9,7 +9,7 @@ const LoginScreen = ({ navigation }) => {
   const [showPassword, setShowPassword] = useState(false);
 
   const handleLogin = () => {
-    fetch('https://test.saipriya.org/login', {
+    fetch('https://login.saipriya.org/login', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -26,7 +26,7 @@ const LoginScreen = ({ navigation }) => {
           AsyncStorage.setItem('token', data.token)
             .then(() => {
               // Navigate to the desired screen after successful login
-              navigation.navigate('DrawerNavigator');
+              navigation.replace('DrawerNavigator');
             });
         } else {
           // Handle login error
@@ -82,8 +82,8 @@ const LoginScreen = ({ navigation }) => {
           </TouchableOpacity>
         </View>
 
-        <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
-          <Text style={styles.loginButtonText}>Login</Text>
+        <TouchableOpacity style={styles.signUpButton} onPress={handleLogin}>
+          <Text style={styles.signUpButtonText}>Login</Text>
         </TouchableOpacity>
 
         <TouchableOpacity onPress={() => navigation.navigate('Signup')}>

@@ -2,18 +2,22 @@ import React, { useState, useRef, useEffect } from 'react';
 import { StyleSheet, View, Text, TextInput, TouchableOpacity, Image, FlatList, SafeAreaView, Animated, ScrollView } from 'react-native';
 import { Ionicons, MaterialCommunityIcons, FontAwesome5 } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { decode as atob } from 'base-64';
+global.atob = atob;
+import { jwtDecode} from 'jwt-decode'; // Updated import
 
 // Dummy data for the flat list
 const data = [
-  { key: '1', title: 'AvidXchange Music Factory', time: '9 PM EST', backgroundColor: '#EBF8EE', category: 'Nightlife' },
-  { key: '2', title: 'Bojangles Coliseum', time: '8 PM EST', backgroundColor: '#FD4E26', category: 'Nightlife' },
-  { key: '3', title: 'Ink n Ivy', time: '10 PM EST', backgroundColor: '#EBF8EE' },
-  { key: '4', title: 'Merchant & Trade', time: '7 PM EST', backgroundColor: '#FD4E26' },
-  { key: '5', title: 'Middle C Jazz', time: '6 PM EST', backgroundColor: '#EBF8EE' },
-  { key: '6', title: 'Nuvole Rooftop TwentyTwo', time: '8 PM EST', backgroundColor: '#FD4E26' },
-  { key: '7', title: 'Ovens Auditorium', time: '9 PM EST', backgroundColor: '#EBF8EE' },
-  { key: '8', title: 'Petra\'s', time: '10 PM EST', backgroundColor: '#FD4E26' },
-  { key: '9', title: 'Pinhouse', time: '11 AM EST', backgroundColor: '#EBF8EE' },
+  { key: '1', title: 'AvidXchange Music Factory', time: '9 PM EST', backgroundColor: '#EBF8EE', category: 'Nightlife', latitude: 35.2401, longitude: -80.8451 },
+  { key: '2', title: 'Bojangles Coliseum', time: '8 PM EST', backgroundColor: '#FD4E26', category: 'Nightlife', latitude: 35.2079, longitude: -80.7997 },
+  { key: '3', title: 'Ink n Ivy', time: '10 PM EST', backgroundColor: '#EBF8EE', latitude: 35.2274, longitude: -80.8443 },
+  { key: '4', title: 'Merchant & Trade', time: '7 PM EST', backgroundColor: '#FD4E26', latitude: 35.2279, longitude: -80.8433 },
+  { key: '5', title: 'Middle C Jazz', time: '6 PM EST', backgroundColor: '#EBF8EE', latitude: 35.2215, longitude: -80.8457 },
+  { key: '6', title: 'Nuvole Rooftop TwentyTwo', time: '8 PM EST', backgroundColor: '#FD4E26', latitude: 35.2278, longitude: -80.8431 },
+  { key: '7', title: 'Ovens Auditorium', time: '9 PM EST', backgroundColor: '#EBF8EE', latitude: 35.2083, longitude: -80.7934 },
+  { key: '8', title: 'Petra\'s', time: '10 PM EST', backgroundColor: '#FD4E26', latitude: 35.2204, longitude: -80.8128 },
+  { key: '9', title: 'Pinhouse', time: '11 AM EST', backgroundColor: '#EBF8EE', latitude: 35.2099, longitude: -80.8126 },
+  { key: '10', title: 'PNC Music Pavilion', time: '8 PM EST', backgroundColor: '#FD4E26', latitude: 35.3354, longitude: -80.7328 },
   { key: '10', title: 'PNC Music Pavilion', time: '8 PM EST', backgroundColor: '#FD4E26' },
   { key: '11', title: 'Puttery', time: '7 PM EST', backgroundColor: '#EBF8EE' },
   { key: '12', title: 'Skyla Credit Union Amphitheatre', time: '9 PM EST', backgroundColor: '#FD4E26' },
@@ -184,8 +188,8 @@ const styles = StyleSheet.create({
       },
       filtersContainer: {
         flexDirection: 'row',
-        flexWrap: 'wrap',
-        marginBottom: 20,
+        paddingHorizontal: 5,
+        marginBottom: 0,
       },
       filterTag: {
         backgroundColor: '#f0f0f0',
@@ -210,20 +214,21 @@ const styles = StyleSheet.create({
 
   const HomeScreen = ({ navigation }) => {
     const handlePressGo = (item) => {
-      
       navigation.navigate('Map', {
         initialDestination: {
-          latitude: 35.239380,
-          longitude: -80.8444919,
-          label: 'Charlotte, NC',
+          latitude: item.latitude,
+          longitude: item.longitude,
+          label: item.title,
         },
       });
     };
+    
   
     const userProfile = {
       name: 'Jane Doe',
       profilePic: 'https://via.placeholder.com/150',
     };
+    
   
     const [search, setSearch] = useState('');
     const [user, setUser] = useState(null);
@@ -237,32 +242,34 @@ const styles = StyleSheet.create({
       try {
         const token = await AsyncStorage.getItem('token');
         if (token) {
-          // Make a request to your Flask backend to get user information
-          const response = await fetch('http://136.57.131.34:5000/user', {
-            headers: {
-              'Authorization': `Bearer ${token}`,
-            },
+          const decoded = jwtDecode(token);
+          console.log(decoded);
+          // If the token doesn't have the complete user info or it's a newly registered user without a profile picture, set defaults
+          const userData = {
+            _id: decoded.user_id || 'default_id',
+            name: decoded.name || 'User', // Fallback to 'User' if name is not in token
+            email: decoded.email || 'user@example.com', // Fallback email
+            profilePic: decoded.profilePic || 'https://via.placeholder.com/150', // Placeholder image URL
+          };
+          setUser(userData);
+        } else {
+          // Set user to null or default values if there's no token
+          setUser({
+            _id: 'default_id',
+            name: 'User',
+            email: 'user@example.com',
+            profilePic: 'https://via.placeholder.com/150',
           });
-          
-          if (response.ok) {
-            try {
-              const data = await response.json();
-              setUser(data.user);
-            } catch (error) {
-              console.log('Failed to parse server response:', error);
-              // Handle the case when the server response is not a valid JSON string
-              // You can display an error message to the user or take appropriate action
-            }
-          } else {
-            console.log('Failed to retrieve user information');
-            // Handle error if user information retrieval fails
-            // You can display an error message to the user or take appropriate action
-          }
         }
       } catch (error) {
-        console.log('Error:', error);
-        // Handle network or other errors
-        // You can display an error message to the user or take appropriate action
+        console.error('Error fetching user info:', error);
+        // Fallback user data in case of an error
+        setUser({
+          _id: 'default_id',
+          name: 'User',
+          email: 'user@example.com',
+          profilePic: 'https://via.placeholder.com/150',
+        });
       }
     };
   
@@ -273,6 +280,7 @@ const styles = StyleSheet.create({
       <View style={styles.destinationCard}>
         <View style={[styles.destinationImage, { backgroundColor: item.backgroundColor }]}>
           {/* Replace with Image component if necessary */}
+          
         </View>
         <Text style={styles.destinationTitle}>{item.title}</Text>
         <Text style={styles.destinationTime}>{item.time}</Text>
@@ -295,13 +303,15 @@ const styles = StyleSheet.create({
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.topBar}>
-  {user && (
-    <>
-      <Image source={{ uri: user.profilePic }} style={styles.profilePic} />
-      <Text style={styles.userName}>{user.firstName}</Text>
-    </>
-  )}
-</View>
+        {user ? (
+          <>
+            <Image source={{ uri: user.profilePic }} style={styles.profilePic} />
+            <Text style={styles.userName}>{user.name}</Text>
+          </>
+        ) : (
+          <Text style={styles.userName}>Loading user...</Text>
+        )}
+      </View>
         <Text style={styles.title}>Find a Driver</Text>
         <View style={styles.searchBar}>
           <TextInput
@@ -316,7 +326,9 @@ const styles = StyleSheet.create({
         </View>
         <Text style={styles.sectionHeader}>Popular Destinations</Text>
         <View style={styles.filtersContainer}>
-          {['All', 'Nightlife', 'Grocery', 'Party', 'Frat', 'Venue', 'Bar', 'Brewery'].map(renderFilterTag)}
+          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+            {['All', 'Nightlife', 'Grocery', 'Party', 'Frat', 'Venue', 'Bar', 'Brewery'].map(renderFilterTag)}
+          </ScrollView>
         </View>
         <FlatList
           data={filteredData}

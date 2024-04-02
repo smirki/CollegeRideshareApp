@@ -71,8 +71,8 @@ export const styles = StyleSheet.create({
         alignItems: 'center',
       },
       destinationImage: {
-        width: 50, // Adjust the size as needed
-        height: 50, // Adjust the size as needed
+        width: 50, 
+        height: 50, 
         resizeMode: 'contain',
       },
       destinationItem: {

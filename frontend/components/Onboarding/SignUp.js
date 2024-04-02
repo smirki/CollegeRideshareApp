@@ -12,7 +12,7 @@ const SignUpScreen = ({ navigation }) => {
   const [showPassword, setShowPassword] = useState(false);
 
   const handleSignup = () => {
-    fetch('http://136.57.131.34:5000/register', {
+    fetch('https://login.saipriya.org/register', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

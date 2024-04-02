@@ -1,5 +1,19 @@
 import React, { useState } from 'react';
-import { View, Text, Switch, StyleSheet, TouchableOpacity, Linking } from 'react-native';
+import { View, Text, Switch, StyleSheet, ScrollView, TouchableOpacity, Linking } from 'react-native';
+import { AntDesign } from '@expo/vector-icons'; // Ensure you have expo/vector-icons installed
+
+const AccordionItem = ({ title, children, expanded }) => {
+  const [isExpanded, setIsExpanded] = useState(expanded);
+  return (
+    <View>
+      <TouchableOpacity style={styles.accordionHeader} onPress={() => setIsExpanded(!isExpanded)}>
+        <Text style={styles.settingText}>{title}</Text>
+        <AntDesign name={isExpanded ? 'up' : 'down'} size={16} color="black" />
+      </TouchableOpacity>
+      {isExpanded && children}
+    </View>
+  );
+};
 
 const SettingsScreen = ({navigation}) => {
   // Example of individual state for different settings
@@ -24,36 +38,87 @@ const SettingsScreen = ({navigation}) => {
   };
 
   return (
-    <View style={styles.container}>
+    <ScrollView style={styles.container}>
       <Text style={styles.header}>Settings</Text>
-      {/* Existing settings toggles... */}
 
-      {/* Navigate to Profile Screen */}
+      <AccordionItem title="Account">
+        <TouchableOpacity
+          style={styles.button}
+          onPress={() => navigation.navigate('ProfileScreen')}
+        >
+          <Text style={styles.buttonText}>Profile</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.button}
+          onPress={() => navigation.navigate('ChangePasswordScreen')}
+        >
+          <Text style={styles.buttonText}>Change Password</Text>
+        </TouchableOpacity>
+      </AccordionItem>
+
+      <AccordionItem title="Preferences">
+        <View style={styles.settingItem}>
+          <Text style={styles.settingText}>Notifications</Text>
+          <Switch value={notificationsEnabled} onValueChange={toggleNotifications} />
+        </View>
+        <View style={styles.settingItem}>
+          <Text style={styles.settingText}>Location Tracking</Text>
+          <Switch value={locationTrackingEnabled} onValueChange={toggleLocationTracking} />
+        </View>
+        <View style={styles.settingItem}>
+          <Text style={styles.settingText}>Dark Mode</Text>
+          <Switch value={darkModeEnabled} onValueChange={toggleDarkMode} />
+        </View>
+      </AccordionItem>
+
+      <AccordionItem title="Privacy">
+        <TouchableOpacity
+          style={styles.button}
+          onPress={() => openURL('https://www.youruniversity.edu/privacy-policy')}
+        >
+          <Text style={styles.buttonText}>Privacy Policy</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.button}
+          onPress={() => openURL('https://www.youruniversity.edu/terms-of-service')}
+        >
+          <Text style={styles.buttonText}>Terms of Service</Text>
+        </TouchableOpacity>
+      </AccordionItem>
+
+      <AccordionItem title="About">
+        <TouchableOpacity
+          style={styles.button}
+          onPress={() => navigation.navigate('AboutScreen')}
+        >
+          <Text style={styles.buttonText}>About the App</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.button}
+          onPress={() => openURL('https://www.youruniversity.edu/contact')}
+        >
+          <Text style={styles.buttonText}>Contact Us</Text>
+        </TouchableOpacity>
+      </AccordionItem>
+
       <TouchableOpacity
         style={styles.button}
-        onPress={() => navigation.navigate('ProfileScreen')}
-      >
-        <Text style={styles.buttonText}>Profile</Text>
-      </TouchableOpacity>
-
-      {/* Navigate to Payments Screen (Assuming you have this screen, add it to your navigator if you haven't) */}
-      <TouchableOpacity
-        style={styles.button}
-        onPress={() => navigation.navigate('PaymentsScreen')} // Add this screen to your navigator
+        onPress={() => navigation.navigate('PaymentsScreen')}
       >
         <Text style={styles.buttonText}>Payments</Text>
       </TouchableOpacity>
 
-      {/* Additional settings navigation */}
-
-      {/* Swap to DriverTabsScreen */}
       <TouchableOpacity
-        style={styles.button}
-        onPress={() => navigation.navigate('DriverTabs')}
-      >
-        <Text style={styles.buttonText}>Switch to Driver Mode</Text>
-      </TouchableOpacity>
-    </View>
+  style={styles.button}
+  onPress={() => navigation.openDrawer()}
+>
+  <Text style={styles.buttonText}>Open Drawer</Text>
+</TouchableOpacity>
+
+
+      {/* Additional settings options */}
+      
+    </ScrollView>
   );
 };
 
@@ -90,6 +155,14 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: 'black',
     fontWeight: 'bold',
+  },accordionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 10,
+    borderTopWidth: 1,
+    borderBottomWidth: 1,
+    borderColor: '#ECECEC',
   },
 });
 
