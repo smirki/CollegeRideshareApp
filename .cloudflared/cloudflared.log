@@ -1,0 +1,20 @@
+{"level":"info","tunnelID":"10ae5b80-6b08-431b-8f97-ebe570c919d8","time":"2024-04-02T06:04:14Z","message":"Starting tunnel"}
+{"level":"info","time":"2024-04-02T06:04:14Z","message":"Version 2024.3.0"}
+{"level":"info","time":"2024-04-02T06:04:14Z","message":"GOOS: windows, GOVersion: go1.21.5-devel-cf, GoArch: amd64"}
+{"level":"info","time":"2024-04-02T06:04:14Z","message":"Settings: map[cred-file:10ae5b80-6b08-431b-8f97-ebe570c919d8.json credentials-file:10ae5b80-6b08-431b-8f97-ebe570c919d8.json logfile:cloudflared.log]"}
+{"level":"info","time":"2024-04-02T06:04:14Z","message":"cloudflared will not automatically update on Windows systems."}
+{"level":"info","time":"2024-04-02T06:04:14Z","message":"Generated Connector ID: f05c48ed-c374-436d-9422-e5cddd58c911"}
+{"level":"info","time":"2024-04-02T06:04:14Z","message":"Initial protocol quic"}
+{"level":"info","time":"2024-04-02T06:04:14Z","message":"ICMP proxy will use 192.168.1.2 as source for IPv4"}
+{"level":"info","time":"2024-04-02T06:04:14Z","message":"ICMP proxy will use fe80::1944:c71f:ba94:c3ef in zone Ethernet as source for IPv6"}
+{"level":"info","time":"2024-04-02T06:04:14Z","message":"cloudflared does not support loading the system root certificate pool on Windows. Please use --origin-ca-pool <PATH> to specify the path to the certificate pool"}
+{"level":"info","time":"2024-04-02T06:04:14Z","message":"cloudflared does not support loading the system root certificate pool on Windows. Please use --origin-ca-pool <PATH> to specify the path to the certificate pool"}
+{"level":"info","time":"2024-04-02T06:04:14Z","message":"cloudflared does not support loading the system root certificate pool on Windows. Please use --origin-ca-pool <PATH> to specify the path to the certificate pool"}
+{"level":"info","time":"2024-04-02T06:04:14Z","message":"cloudflared does not support loading the system root certificate pool on Windows. Please use --origin-ca-pool <PATH> to specify the path to the certificate pool"}
+{"level":"info","time":"2024-04-02T06:04:14Z","message":"cloudflared does not support loading the system root certificate pool on Windows. Please use --origin-ca-pool <PATH> to specify the path to the certificate pool"}
+{"level":"info","time":"2024-04-02T06:04:14Z","message":"cloudflared does not support loading the system root certificate pool on Windows. Please use --origin-ca-pool <PATH> to specify the path to the certificate pool"}
+{"level":"info","time":"2024-04-02T06:04:14Z","message":"Starting metrics server on 127.0.0.1:64435/metrics"}
+{"level":"info","event":0,"connection":"c4587991-d5ea-4781-bb28-99637ac56f2d","connIndex":0,"location":"iad11","ip":"198.41.200.13","protocol":"quic","time":"2024-04-02T06:04:14Z","message":"Registered tunnel connection"}
+{"level":"info","event":0,"connection":"322389cb-d096-4aed-990a-aab2208e2d83","connIndex":1,"location":"iad10","ip":"198.41.192.27","protocol":"quic","time":"2024-04-02T06:04:14Z","message":"Registered tunnel connection"}
+{"level":"info","event":0,"connection":"35e69c81-a864-4f03-86da-22bcac71cbd5","connIndex":2,"location":"iad02","ip":"198.41.192.67","protocol":"quic","time":"2024-04-02T06:04:15Z","message":"Registered tunnel connection"}
+{"level":"info","event":0,"connection":"af94c954-ff3b-4d56-a744-77692ef28eae","connIndex":3,"location":"iad12","ip":"198.41.200.113","protocol":"quic","time":"2024-04-02T06:04:16Z","message":"Registered tunnel connection"}

@@ -1,0 +1,36 @@
+tunnel: 10ae5b80-6b08-431b-8f97-ebe570c919d8
+credentials-file: 10ae5b80-6b08-431b-8f97-ebe570c919d8.json
+
+ingress:
+  - hostname: chatme.saipriya.org
+    service: ws://localhost:2053
+
+  - hostname: pelias.saipriya.org
+    service: http://localhost:4000
+
+  - hostname: login.saipriya.org
+    service: http://localhost:8000
+  
+  - hostname: expo.saipriya.org
+    service: http://localhost:8081
+
+  - hostname: routing.saipriya.org
+    service: http://localhost:8080
+
+  - hostname: matching.saipriya.org
+    service: ws://localhost:3000
+
+  - service: http_status:404 # Catch-all rule
+
+logfile:  cloudflared.log
+
+#cloudflared tunnel dns file only have to do once
+
+# cloudflared tunnel route dns d5fe03fa-b00a-49d1-bfd5-b6dc9dbeaaa0 ayush-chatme
+# cloudflared tunnel route dns d5fe03fa-b00a-49d1-bfd5-b6dc9dbeaaa0 ayush-pelias
+# cloudflared tunnel route dns d5fe03fa-b00a-49d1-bfd5-b6dc9dbeaaa0 ayush-login
+# cloudflared tunnel route dns d5fe03fa-b00a-49d1-bfd5-b6dc9dbeaaa0 ayush-expo
+# cloudflared tunnel route dns d5fe03fa-b00a-49d1-bfd5-b6dc9dbeaaa0 ayush-routing
+# cloudflared tunnel route dns d5fe03fa-b00a-49d1-bfd5-b6dc9dbeaaa0 ayush-matching
+
+#cloudflared --config config.yml tunnel run
