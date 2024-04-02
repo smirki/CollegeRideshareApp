@@ -1,4 +1,5 @@
-![logo](https://github.com/smirki/Ugo/blob/dev/frontend/assets/ugoicon.png)
+<img src="https://github.com/smirki/Ugo/blob/dev/frontend/assets/ugoicon.png" alt="Ugo Logo" width="200"/> 
+
 Ugo - College Rideshare App
 ===========================
 
@@ -34,7 +35,7 @@ Ugo's development workflow is centered around the `dev` branch, which serves as 
 ### Environment Setup
 
 -   Ask a project maintainer for the `.env` file to connect to MongoDB.
--   Ensure Docker is installed and running for API services.
+-   Ensure Docker is installed and running for API services..
 
 Technology Stack
 ----------------
@@ -44,20 +45,39 @@ Technology Stack
 -   Real-Time Services: `node_websockets` handles real-time driver ride requests.
 -   Containerization: Custom APIs are containerized with Docker for consistency across environments.
 
-Running Locally
----------------
+## Development Setup
+To set up your development environment, follow these steps:
 
-1.  Ensure you have Node.js, Python, and Docker installed.
-2.  Install dependencies for each part of the project:
-    -   `cd frontend/CollegeRideshareApp && npm install`
-    -   `cd backend/flask_api && pip install -r requirements.txt`
-    -   `cd backend/node_websockets && npm install`
-3.  Start the development servers:
-    -   Frontend: `npx expo start`
-    -   Flask API: `python main.py`
-    -   Node WebSockets: `node index.js`
-4.  Run Docker containers for the custom APIs:
-    -   `docker-compose up --build`
+1. **Install Required Software:**
+   - Install [Insomnia](https://insomnia.rest/download), [cloudflared](https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/install-and-setup/installation), [React Native CLI](https://reactnative.dev/docs/environment-setup), and [Docker Desktop](https://www.docker.com/products/docker-desktop).
+
+2. **Environment Configuration:**
+   - Create a `.env` file in the `frontend` folder based on the `.env.example`.
+   - Acquire a `.env` file for the `backend/flask_api` to connect to the MongoDB server.
+   - Get a `cloudflared` JSON file from a project maintainer and place it in the `.cloudflared` directory.
+   - Run the batch scripts in `.cloudflared` to set up your Cloudflare tunnel using your name and tunnel ID.
+
+3. **Running Instructions:**
+   - In the root project directory (`/ugo/`), run `docker-compose up --build` to start all microservices.
+   - In the `.cloudflared/` directory, run `cloudflared tunnel run` to start the Cloudflare tunnel.
+   - In the `frontend/` directory, run `npx expo start -c` to start the Expo server for the React Native app.
+
+## Running Locally
+
+1. **Docker Setup:**
+   - Ensure Docker Desktop is running.
+   - In the project root, run `docker-compose up --build` to start the Dockerized microservices.
+
+2. **Cloudflared Tunnel:**
+   - Navigate to your `.cloudflared` directory.
+   - Run the user setup batch file: `user_setup.bat`.
+   - Start the tunnel: `cloudflared --config config.yml tunnel run`.
+
+3. **React Native App:**
+   - In the `frontend/` directory, start the Expo server: `npx expo start -c`.
+
+Make sure to configure the `.env` file in your `frontend` directory with the necessary variables.
+
 
 Contributing
 ------------
