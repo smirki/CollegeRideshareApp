@@ -4,12 +4,14 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import { Ionicons } from '@expo/vector-icons';
+import { StripeProvider } from '@stripe/stripe-react-native';
+
 // Import screens
 import HomeScreen from './components/Rider/HomeScreen.js';
 import Onboarding from './components/Onboarding/OnboardingScreen.js';
 import ProfileScreen from './components/Rider/ProfileScreen.js';
 import SettingsScreen from './components/Rider/SettingsScreen.js';
-import RideConfirmation  from './components/Rider/RideConfirmation.js';
+import RideConfirmation from './components/Rider/RideConfirmation.js';
 import MapScreen from './components/Rider/MapScreen.js';
 import NotificationsScreen from './components/Rider/NotificationScreen.js';
 import DriverScreen from './components/Driver/DriverScreen.js';
@@ -17,7 +19,7 @@ import SignupScreen from './components/Onboarding/SignUp.js';
 import LoginScreen from './components/Onboarding/LoginScreen.js';
 // Import navigation components
 import DriverTabs from './components/Navigation/DriverTabs.js';
-
+import PaymentsScreen from './components/Payments/PaymentsScreen.js';
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 const Drawer = createDrawerNavigator();
@@ -41,57 +43,89 @@ function HomeTabs() {
 
           //return components here
           return <Ionicons name={iconName} size={size} color={color} />;
-        },"tabBarActiveTintColor": "#FECC4C",
-        "tabBarInactiveTintColor": "#676767",
-        "tabBarStyle": [
+        },
+        tabBarActiveTintColor: '#FECC4C',
+        tabBarInactiveTintColor: '#676767',
+        tabBarStyle: [
           {
-            "display": "flex"
+            display: 'flex',
           },
-          null
-        ]
+          null,
+        ],
       })}
     >
-      <Tab.Screen name="Home" component={HomeScreen} options={{ headerShown: false }}/>
-      <Tab.Screen name="Notifications" component={NotificationsScreen} options={{ headerShown: false }}/>
-      <Tab.Screen name="Map" component={MapScreen} options={{ headerShown: false }}/>
-      <Tab.Screen name="Settings" component={SettingsScreen} options={{ headerShown: false }}/>
+      <Tab.Screen
+        name="Home"
+        component={HomeScreen}
+        options={{ headerShown: false }}
+      />
+      <Tab.Screen
+        name="Notifications"
+        component={NotificationsScreen}
+        options={{ headerShown: false }}
+      />
+      <Tab.Screen
+        name="Map"
+        component={MapScreen}
+        options={{ headerShown: false }}
+      />
+      <Tab.Screen
+        name="Settings"
+        component={SettingsScreen}
+        options={{ headerShown: false }}
+      />
     </Tab.Navigator>
   );
 }
 function DrawerNavigator() {
   return (
     <Drawer.Navigator initialRouteName="HomeTabs">
-      <Drawer.Screen name="HomeTabs" component={HomeTabs} options={{ drawerLabel: 'Rider' , headerShown: false }} />
-      <Drawer.Screen name="DriverScreen" component={DriverTabs} options={{ drawerLabel: 'Driver', headerShown: false  }} />
+      <Drawer.Screen
+        name="HomeTabs"
+        component={HomeTabs}
+        options={{ drawerLabel: 'Rider', headerShown: false }}
+      />
+      <Drawer.Screen
+        name="DriverScreen"
+        component={DriverTabs}
+        options={{ drawerLabel: 'Driver', headerShown: false }}
+      />
     </Drawer.Navigator>
   );
 }
 
 function App() {
   return (
-    <NavigationContainer>
-      <Stack.Navigator>
-        <Stack.Screen
-          name="Onboarding"
-          component={Onboarding}
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen name="Signup" component={SignupScreen} />
-        <Stack.Screen name="Login" component={LoginScreen} />
-        {/* Replace HomeTabs with DrawerNavigator */}
-        <Stack.Screen
-          name="DrawerNavigator"
-          component={DrawerNavigator}
-          options={{ headerShown: false }}
-        />
-        {/* Keep other Stack screens as is */}
-      </Stack.Navigator>
-    </NavigationContainer>
+    <StripeProvider
+      publishableKey="pk_test_51OfniJDtK57hwiI4CY9u4qzBlNrMLx4n86CmF7hSvmcDFwRJje8noHmnWaw8ESybJHZAXWQPvCBdq0Auu8Ey8lbP00fLL5NXkH" // required for Apple Pay
+    >
+      <NavigationContainer>
+        <Stack.Navigator>
+          <Stack.Screen
+            name="Onboarding"
+            component={Onboarding}
+            options={{ headerShown: false }}
+          />
+
+          <Stack.Screen name="Signup" component={SignupScreen} />
+          <Stack.Screen name="PaymentsScreen" component={PaymentsScreen} />
+          <Stack.Screen name="Login" component={LoginScreen} />
+
+          {/* Replace HomeTabs with DrawerNavigator */}
+          <Stack.Screen
+            name="DrawerNavigator"
+            component={DrawerNavigator}
+            options={{ headerShown: false }}
+          />
+
+          {/* Keep other Stack screens as is */}
+        </Stack.Navigator>
+      </NavigationContainer>
+    </StripeProvider>
   );
 }
 
 export default App;
-
 
 // import * as React from 'react';
 // import { StyleSheet, Text, View, Image, Button} from 'react-native';
@@ -195,7 +229,5 @@ export default App;
 //     </NavigationContainer>
 //   );
 // }
-
-
 
 // export default App;
