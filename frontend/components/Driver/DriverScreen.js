@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, StyleSheet, TouchableOpacity, Text, Modal } from 'react-native';
+import { View, TouchableOpacity, Text, Modal, StyleSheet } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { decode as atob } from 'base-64';
 global.atob = atob;
@@ -8,7 +8,9 @@ import { io } from 'socket.io-client';
 
 const DriverScreen = () => {
   const [isAvailable, setIsAvailable] = useState(false);
+  const [isDriving, setIsDriving] = useState(false);
   const [rideRequest, setRideRequest] = useState(null);
+  const [currentRideId, setCurrentRideId] = useState(null);
   const [user, setUser] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const socketRef = useRef(null);
@@ -70,8 +72,23 @@ const DriverScreen = () => {
 
     socketRef.current.on('rideRequested', (data) => {
       console.log(`Ride requested: ${data.rideId} from rider ${data.riderId} (${data.riderName})`);
-      setRideRequest(data);
+      setRideRequest({
+        ...data,
+        pickup: data.pickup,
+        destination: data.destination,
+      });
       setShowModal(true);
+    });
+
+    socketRef.current.on('rideAccepted', () => {
+      setIsDriving(true);
+      setIsAvailable(false);
+    });
+
+    socketRef.current.on('rideCompleted', () => {
+      setIsDriving(false);
+      setIsAvailable(true);
+      setCurrentRideId(null);
     });
 
     socketRef.current.on('disconnect', () => {
@@ -102,6 +119,7 @@ const DriverScreen = () => {
         accepted: true,
         rideId: rideRequest.rideId,
       });
+      setCurrentRideId(rideRequest.rideId);
     } else {
       console.log('Declining ride request:', rideRequest);
       socketRef.current.emit('rideResponse', {
@@ -113,6 +131,12 @@ const DriverScreen = () => {
     setShowModal(false);
   };
 
+  const handleCompleteRide = () => {
+    if (socketRef.current && currentRideId) {
+      socketRef.current.emit('completeRide', { rideId: currentRideId });
+    }
+  };
+
   return (
     <View style={styles.container}>
       <Text>Driver: {user ? user.name : 'Loading...'}</Text>
@@ -122,34 +146,48 @@ const DriverScreen = () => {
       >
         <Text style={styles.availabilityButtonText}>{isAvailable ? 'Available' : 'Unavailable'}</Text>
       </TouchableOpacity>
+      {isDriving && (
+        <TouchableOpacity
+          style={styles.completeRideButton}
+          onPress={handleCompleteRide}
+        >
+          <Text style={styles.completeRideButtonText}>Complete Ride</Text>
+        </TouchableOpacity>
+      )}
       <Modal
-        animationType="slide"
-        transparent={true}
-        visible={showModal}
-        onRequestClose={() => {
-          setShowModal(false);
-        }}
-      >
-        <View style={styles.centeredView}>
-          <View style={styles.modalView}>
-            <Text style={styles.modalText}>Ride Request from {rideRequest ? rideRequest.riderName : ''}</Text>
-            <View style={styles.rideRequestButtons}>
-              <TouchableOpacity
-                style={[styles.rideRequestButton, styles.acceptButton]}
-                onPress={() => handleRideRequest(true)}
-              >
-                <Text style={styles.rideRequestButtonText}>Accept</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.rideRequestButton, styles.declineButton]}
-                onPress={() => handleRideRequest(false)}
-              >
-                <Text style={styles.rideRequestButtonText}>Decline</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
-      </Modal>
+  animationType="slide"
+  transparent={true}
+  visible={showModal}
+  onRequestClose={() => {
+    setShowModal(false);
+  }}
+>
+  <View style={styles.centeredView}>
+    <View style={styles.modalView}>
+      <Text style={styles.modalText}>Ride Request from {rideRequest ? rideRequest.riderName : ''}</Text>
+      {rideRequest && (
+        <>
+          <Text>Pickup: {rideRequest.pickup.latitude}, {rideRequest.pickup.longitude}</Text>
+          <Text>Destination: {rideRequest.destination.latitude}, {rideRequest.destination.longitude}</Text>
+        </>
+      )}
+      <View style={styles.rideRequestButtons}>
+        <TouchableOpacity
+          style={[styles.rideRequestButton, styles.acceptButton]}
+          onPress={() => handleRideRequest(true)}
+        >
+          <Text style={styles.rideRequestButtonText}>Accept</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.rideRequestButton, styles.declineButton]}
+          onPress={() => handleRideRequest(false)}
+        >
+          <Text style={styles.rideRequestButtonText}>Decline</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+  </View>
+</Modal>
     </View>
   );
 };

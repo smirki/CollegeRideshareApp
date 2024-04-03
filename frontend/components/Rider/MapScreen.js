@@ -14,7 +14,7 @@ import MapView, { Marker, Polyline } from 'react-native-maps';
 import * as Location from 'expo-location';
 import { Ionicons } from '@expo/vector-icons';
 
-const MapScreen = () => {
+const MapScreen = ({ navigation }) => {
   const [pickupQuery, setPickupQuery] = useState('');
   const [destinationQuery, setDestinationQuery] = useState('');
   const [pickupLocation, setPickupLocation] = useState(null);
@@ -42,9 +42,9 @@ const MapScreen = () => {
   }, []);
 
   useEffect(() => {
-    console.log('Pickup Query:', pickupQuery);
+    console.log('Pickup Query:', pickupLocation);
     console.log('Destination Query:', destinationQuery);
-  }, [pickupQuery, destinationQuery]);
+  }, [pickupLocation, destinationQuery]);
 
   const fetchSuggestions = async (query, field) => {
     if (!query.trim()) {
@@ -123,8 +123,16 @@ const MapScreen = () => {
 
   const handleFindRide = () => {
     if (pickupLocation && destinationLocation) {
-      // Implement ride request logic here
-      Alert.alert('Ride Requested', 'Your ride has been requested.');
+      navigation.navigate('RideConfirmation', {
+        pickup: {
+          latitude: pickupLocation.latitude,
+          longitude: pickupLocation.longitude,
+        },
+        destination: {
+          latitude: destinationLocation.latitude,
+          longitude: destinationLocation.longitude,
+        },
+      });
     } else {
       Alert.alert('Please select both pickup and destination locations.');
     }

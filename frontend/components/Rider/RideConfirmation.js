@@ -6,7 +6,7 @@ import { decode as atob } from 'base-64';
 global.atob = atob;
 import { jwtDecode } from 'jwt-decode';
 
-const RideConfirmationScreen = () => {
+const RideConfirmationScreen = ({ route }) => {
   const [drivers, setDrivers] = useState([]);
   const [riders, setRiders] = useState([]);
   const [user, setUser] = useState(null);
@@ -79,7 +79,7 @@ const RideConfirmationScreen = () => {
       console.log('Connected to server');
       if (user) {
         const registerRider = {
-          type: 'register',
+          type: 'rider',
           riderId: user._id,
         };
         socketRef.current.emit('register', registerRider);
@@ -112,16 +112,33 @@ const RideConfirmationScreen = () => {
     });
   };
 
+  useEffect(() => {
+    console.log("Route Params:", route.params);
+  }, [route.params]);
+
   const handleRequestRide = () => {
-    if (user) {
+    const { pickup, destination } = route.params;
+    console.log('Inside handleRequestRide - Pickup:', pickup);
+    console.log('Inside handleRequestRide - Destination:', destination);
+  
+    if (user && pickup && destination && pickup.latitude && pickup.longitude && destination.latitude && destination.longitude) {
       const rideRequest = {
         userId: user._id,
         userName: user.name,
-        pickup: 'User Pickup Location',
-        dropoff: 'User Dropoff Location',
+        pickup: {
+          latitude: pickup.latitude,
+          longitude: pickup.longitude,
+        },
+        destination: {
+          latitude: destination.latitude,
+          longitude: destination.longitude,
+        },
       };
+      console.log("Emitting ride request:", rideRequest);
       socketRef.current.emit('requestRide', rideRequest);
       setRideStatus('requesting');
+    } else {
+      console.error("User or coordinates are undefined.");
     }
   };
 
@@ -144,12 +161,12 @@ const RideConfirmationScreen = () => {
         )}
       />
       {isConnected && (
-        <Button
-          title={rideStatus === 'requesting' ? 'Requesting Ride...' : 'Request Ride'}
-          onPress={handleRequestRide}
-          disabled={rideStatus === 'requesting'}
-        />
-      )}
+      <Button
+        title={rideStatus === 'requesting' ? 'Requesting Ride...' : 'Request Ride'}
+        onPress={handleRequestRide}
+        disabled={rideStatus === 'requesting'}
+      />
+    )}
       {rideStatus === 'accepted' && <Text style={styles.status}>Ride Accepted!</Text>}
       {rideStatus === 'declined' && <Text style={styles.status}>Ride Declined.</Text>}
     </View>
