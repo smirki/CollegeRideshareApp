@@ -12,6 +12,10 @@ const SignUpScreen = ({ navigation }) => {
   const [showPassword, setShowPassword] = useState(false);
 
   const handleSignup = () => {
+    if (!email || !password || !firstName || !lastName || !phone) {
+      Alert.alert('Error', 'Please fill in all fields');
+      return;
+    }
     fetch(`https://${process.env.EXPO_PUBLIC_API_LOGIN_API}/register`, {
       method: 'POST',
       headers: {
@@ -60,30 +64,33 @@ const SignUpScreen = ({ navigation }) => {
         </View>
 
         <View style={styles.inputContainer}>
-          <Ionicons name="person-outline" size={24} color="gray" style={styles.icon} />
+          <Ionicons name="person-outline" size={24} color="#FECC4C" style={styles.icon} />
           <TextInput
             style={styles.input}
             placeholder="First Name"
+            placeholderTextColor="#7e7e7e"
             value={firstName}
             onChangeText={setFirstName}
           />
         </View>
 
         <View style={styles.inputContainer}>
-          <Ionicons name="person-outline" size={24} color="gray" style={styles.icon} />
+          <Ionicons name="person-outline" size={24} color="#FECC4C" style={styles.icon} />
           <TextInput
             style={styles.input}
             placeholder="Last Name"
+            placeholderTextColor="#7e7e7e"
             value={lastName}
             onChangeText={setLastName}
           />
         </View>
 
         <View style={styles.inputContainer}>
-          <Ionicons name="mail-outline" size={24} color="gray" style={styles.icon} />
+          <Ionicons name="mail-outline" size={24} color="#FECC4C" style={styles.icon} />
           <TextInput
             style={styles.input}
             placeholder="Email"
+            placeholderTextColor="#7e7e7e"
             value={email}
             onChangeText={setEmail}
             keyboardType="email-address"
@@ -91,10 +98,11 @@ const SignUpScreen = ({ navigation }) => {
         </View>
 
         <View style={styles.inputContainer}>
-          <Ionicons name="call-outline" size={24} color="gray" style={styles.icon} />
+          <Ionicons name="call-outline" size={24} color="#FECC4C" style={styles.icon} />
           <TextInput
             style={styles.input}
             placeholder="Phone Number"
+            placeholderTextColor="#7e7e7e"
             value={phone}
             onChangeText={setPhone}
             keyboardType="phone-pad"
@@ -102,10 +110,11 @@ const SignUpScreen = ({ navigation }) => {
         </View>
 
         <View style={styles.inputContainer}>
-          <Ionicons name="lock-closed-outline" size={24} color="gray" style={styles.icon} />
+          <Ionicons name="lock-closed-outline" size={24} color="#FECC4C" style={styles.icon} />
           <TextInput
             style={styles.input}
             placeholder="Password"
+            placeholderTextColor="#7e7e7e"
             value={password}
             onChangeText={setPassword}
             secureTextEntry={!showPassword}
@@ -114,7 +123,7 @@ const SignUpScreen = ({ navigation }) => {
             <Feather
               name={showPassword ? 'eye-off' : 'eye'}
               size={24}
-              color="gray"
+              color="#FECC4C"
             />
           </TouchableOpacity>
         </View>
@@ -134,7 +143,7 @@ const SignUpScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#000',
   },
   scrollContainer: {
     flexGrow: 1,
@@ -148,12 +157,12 @@ const styles = StyleSheet.create({
   headerText: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: '#333',
+    color: '#FFFFFF',
   },
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#232323',
     borderRadius: 10,
     paddingHorizontal: 15,
     marginBottom: 20,
@@ -165,26 +174,26 @@ const styles = StyleSheet.create({
     flex: 1,
     height: 50,
     fontSize: 16,
-    color: '#333',
+    color: '#FFFFFF',
   },
   showPasswordButton: {
     marginLeft: 10,
   },
   signUpButton: {
-    backgroundColor: '#007AFF',
+    backgroundColor: '#FECC4C',
     paddingVertical: 15,
     paddingHorizontal: 30,
     borderRadius: 25,
     marginTop: 20,
   },
   signUpButtonText: {
-    color: '#fff',
+    color: '#000',
     fontSize: 18,
     fontWeight: 'bold',
   },
   loginText: {
     marginTop: 20,
-    color: '#007AFF',
+    color: '#FFFFFF',
     fontSize: 16,
   },
 });

@@ -4,24 +4,23 @@ import { View, Text, TouchableOpacity, Image, StyleSheet } from 'react-native';
 const Onboarding = ({ navigation }) => {
   return (
     <View style={styles.container}>
-      {/* Icons and illustrations here */}
       <View style={styles.iconsContainer}>
         <Image style={styles.icon} source={require('../../assets/favicon.png')} />
         <Image style={styles.icon} source={require('../../assets/favicon.png')} />
         <Image style={styles.icon} source={require('../../assets/favicon.png')} />
       </View>
       <View style={styles.circle}>
-        <Image style={styles.carImage} source={require('../../assets/ugoicon.png')} />
+        <Image style={styles.logoImage} source={require('../../assets/favicon.png')} />
       </View>
       <Text style={styles.headerText}>Welcome to Ugo</Text>
       <Text style={styles.subHeaderText}>
-        Getting you to where you need to be safely and making it affordable.
+        Getting you to where you need to be safely and affordably.
       </Text>
-      <TouchableOpacity
-        style={styles.getStartedButton}
-        onPress={() => navigation.replace('Signup')}
-      >
+      <TouchableOpacity style={styles.getStartedButton} onPress={() => navigation.replace('Signup')}>
         <Text style={styles.getStartedButtonText}>Get Started</Text>
+      </TouchableOpacity>
+      <TouchableOpacity onPress={() => navigation.navigate('Login')}>
+        <Text style={styles.loginText}>Already have an account? Login</Text>
       </TouchableOpacity>
     </View>
   );
@@ -32,57 +31,63 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'white',
+    backgroundColor: '#000',
     padding: 20,
   },
   iconsContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    // Set width or margin as needed to position your icons
+    width: '80%',
+    marginBottom: 30,
   },
   icon: {
-    // Add styles for the icons if needed
+    width: 60,
+    height: 60,
   },
   circle: {
     width: 140,
     height: 140,
     borderRadius: 70,
-    backgroundColor: '#FFCC00', // Use the color from your brand palette
+    backgroundColor: '#FECC4C',
     justifyContent: 'center',
     alignItems: 'center',
-    marginVertical: 30,
+    marginBottom: 30,
   },
-  carImage: {
-    // Adjust the size as needed based on your icon's aspect ratio
+  logoImage: {
     width: 100,
     height: 100,
   },
   headerText: {
-    fontSize: 50,
+    fontSize: 32,
     fontWeight: 'bold',
     textAlign: 'center',
     marginBottom: 10,
+    color: '#FFFFFF',
   },
   subHeaderText: {
-    fontSize: 16,
+    fontSize: 18,
     textAlign: 'center',
     marginBottom: 30,
+    color: '#FFFFFF',
   },
   getStartedButton: {
-    backgroundColor: '#FFCC00',
+    backgroundColor: '#FECC4C',
     padding: 15,
     borderRadius: 30,
     width: '80%',
     alignItems: 'center',
-    marginBottom: 50,
+    marginBottom: 20,
   },
   getStartedButtonText: {
     fontSize: 18,
-    color: 'black',
+    color: '#000',
     fontWeight: 'bold',
   },
-  // ... any additional styles you may need
+  loginText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+  },
 });
 
 export default Onboarding;

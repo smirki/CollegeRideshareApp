@@ -9,6 +9,10 @@ const LoginScreen = ({ navigation }) => {
   const [showPassword, setShowPassword] = useState(false);
 
   const handleLogin = () => {
+    if (!email || !password) {
+      Alert.alert('Error', 'Please enter your email and password');
+      return;
+    }
     fetch(`https://${process.env.EXPO_PUBLIC_API_LOGIN_API}/login`, {
       method: 'POST',
       headers: {
@@ -54,10 +58,11 @@ const LoginScreen = ({ navigation }) => {
         </View>
 
         <View style={styles.inputContainer}>
-          <Ionicons name="mail-outline" size={24} color="gray" style={styles.icon} />
+          <Ionicons name="mail-outline" size={24} color="#FECC4C" style={styles.icon} />
           <TextInput
             style={styles.input}
             placeholder="Email"
+            placeholderTextColor="#7e7e7e"
             value={email}
             onChangeText={setEmail}
             keyboardType="email-address"
@@ -65,10 +70,11 @@ const LoginScreen = ({ navigation }) => {
         </View>
 
         <View style={styles.inputContainer}>
-          <Ionicons name="lock-closed-outline" size={24} color="gray" style={styles.icon} />
+          <Ionicons name="lock-closed-outline" size={24} color="#FECC4C" style={styles.icon} />
           <TextInput
             style={styles.input}
             placeholder="Password"
+            placeholderTextColor="#7e7e7e"
             value={password}
             onChangeText={setPassword}
             secureTextEntry={!showPassword}
@@ -77,13 +83,13 @@ const LoginScreen = ({ navigation }) => {
             <Feather
               name={showPassword ? 'eye-off' : 'eye'}
               size={24}
-              color="gray"
+              color="#FECC4C"
             />
           </TouchableOpacity>
         </View>
 
-        <TouchableOpacity style={styles.signUpButton} onPress={handleLogin}>
-          <Text style={styles.signUpButtonText}>Login</Text>
+        <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
+          <Text style={styles.loginButtonText}>Login</Text>
         </TouchableOpacity>
 
         <TouchableOpacity onPress={() => navigation.navigate('Signup')}>
@@ -97,7 +103,7 @@ const LoginScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#000',
   },
   scrollContainer: {
     flexGrow: 1,
@@ -111,12 +117,12 @@ const styles = StyleSheet.create({
   headerText: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: '#333',
+    color: '#FFFFFF',
   },
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#232323',
     borderRadius: 10,
     paddingHorizontal: 15,
     marginBottom: 20,
@@ -128,26 +134,26 @@ const styles = StyleSheet.create({
     flex: 1,
     height: 50,
     fontSize: 16,
-    color: '#333',
+    color: '#FFFFFF',
   },
   showPasswordButton: {
     marginLeft: 10,
   },
-  signUpButton: {
-    backgroundColor: '#007AFF',
+  loginButton: {
+    backgroundColor: '#FECC4C',
     paddingVertical: 15,
     paddingHorizontal: 30,
     borderRadius: 25,
     marginTop: 20,
   },
-  signUpButtonText: {
-    color: '#fff',
+  loginButtonText: {
+    color: '#000',
     fontSize: 18,
     fontWeight: 'bold',
   },
-  loginText: {
+  signUpText: {
     marginTop: 20,
-    color: '#007AFF',
+    color: '#FFFFFF',
     fontSize: 16,
   },
 });

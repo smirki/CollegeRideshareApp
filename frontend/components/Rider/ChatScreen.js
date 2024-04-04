@@ -78,9 +78,8 @@ const ChatScreen = () => {
   
 
   const renderBubble = (props) => {
-    // Compare the current message user id with the current user's id
     const isUserMessage = props.currentMessage.user._id === user._id;
-  
+
     return (
       <Bubble
         {...props}
@@ -126,21 +125,23 @@ const ChatScreen = () => {
   const renderSend = (props) => {
     return (
       <Send {...props} containerStyle={styles.sendContainer}>
-        <Ionicons name="send" size={28} color="#007AFF" />
+        <Ionicons name="send" size={28} color="#FECC4C" />
       </Send>
     );
   };
+
   const renderDay = (props) => {
     return (
       <Day
         {...props}
-        textStyle={{ color: '#B0B0B0' }}
+        textStyle={{ color: '#7e7e7e' }}
         wrapperStyle={{ backgroundColor: 'transparent' }}
       />
     );
   };
+
   const renderTime = (props) => (
-    <Time {...props} timeTextStyle={{ left: { color: 'grey' }, right: { color: 'white' } }} />
+    <Time {...props} timeTextStyle={{ left: { color: '#7e7e7e' }, right: { color: '#7e7e7e' } }} />
   );
 
   const renderInputToolbar = (props) => {
@@ -172,61 +173,47 @@ const ChatScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#000',
   },
   userBubble: {
-    backgroundColor: '#007AFF',
+    backgroundColor: '#FECC4C',
   },
   otherUserBubble: {
-    backgroundColor: '#E5E5EA',
+    backgroundColor: '#232323',
   },
   userText: {
-    color: '#FFFFFF',
+    color: '#000',
   },
   otherUserText: {
-    color: '#000000',
+    color: '#fff',
   },
   avatarContainer: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#CCCCCC',
+    backgroundColor: '#424242',
     alignItems: 'center',
     justifyContent: 'center',
   },
   avatarText: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#FFFFFF',
-  },
-  sendContainer: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 10,
-  },
-  sendButton: {
-    backgroundColor: '#007AFF',
-    borderRadius: 20,
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-  },
-  sendButtonText: {
-    color: '#FFFFFF',
-    fontWeight: 'bold',
-  },
-  inputToolbar: {
-    marginTop: 6,
-    marginHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: 20,
-    backgroundColor: '#F5F5F5',
+    color: '#fff',
   },
   sendContainer: {
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 10,
     marginBottom: 5,
-  }
+  },
+  inputToolbar: {
+    marginTop: 6,
+    marginHorizontal: 10,
+    paddingVertical: 0,
+    borderRadius: 15,
+    backgroundColor: '#232323',
+    color: "white",
+  },
 });
 
 export default ChatScreen;

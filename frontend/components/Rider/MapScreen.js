@@ -121,6 +121,53 @@ const MapScreen = ({ navigation }) => {
     }
   };
 
+  const darkMapStyle = [
+    {
+      elementType: 'geometry',
+      stylers: [
+        {
+          color: '#242f3e',
+        },
+      ],
+    },
+    {
+      elementType: 'labels.text.fill',
+      stylers: [
+        {
+          color: '#746855',
+        },
+      ],
+    },
+    {
+      elementType: 'labels.text.stroke',
+      stylers: [
+        {
+          color: '#242f3e',
+        },
+      ],
+    },
+    {
+      featureType: 'road',
+      elementType: 'geometry',
+      stylers: [
+        {
+          color: '#38414e',
+        },
+      ],
+    },
+    {
+      featureType: 'water',
+      elementType: 'geometry',
+      stylers: [
+        {
+          color: '#17263c',
+        },
+      ],
+    },
+  ];
+  
+  
+
   const handleFindRide = () => {
     if (pickupLocation && destinationLocation) {
       navigation.navigate('RideConfirmation', {
@@ -166,18 +213,20 @@ const MapScreen = ({ navigation }) => {
   return (
     <View style={styles.container}>
       <MapView
-        ref={mapRef}
-        style={styles.map}
-        initialRegion={{
-          latitude: 35.3088,
-          longitude: -80.7444,
-          latitudeDelta: 0.0922,
-          longitudeDelta: 0.0421,
-        }}
-        accessibilityLabel="Map"
-      >
+      provider="google"
+  ref={mapRef}
+  style={styles.map}
+  initialRegion={{
+    latitude: 35.3088,
+    longitude: -80.7444,
+    latitudeDelta: 0.0922,
+    longitudeDelta: 0.0421,
+  }}
+  customMapStyle={darkMapStyle} // Apply the dark map style
+  accessibilityLabel="Map"
+>
         {routeCoordinates.length > 0 && (
-          <Polyline coordinates={routeCoordinates} strokeWidth={4} strokeColor="#007bff" />
+          <Polyline coordinates={routeCoordinates} strokeWidth={4} strokeColor="#FECC4C" />
         )}
         {pickupLocation && (
           <Marker coordinate={pickupLocation} accessibilityLabel="Pickup Location">
@@ -205,60 +254,42 @@ const MapScreen = ({ navigation }) => {
               accessibilityLabel="Use Current Location"
               accessibilityRole="button"
             >
-              <Ionicons name="location" size={24} color="#007bff" />
+              <Ionicons name="location" size={24} color="#FECC4C" />
             </TouchableOpacity>
           </Marker>
         )}
       </MapView>
 
       <View style={styles.inputContainer}>
-      <TextInput
-  style={styles.input}
-  placeholder={pickupQuery || "Pickup Location"}
-  placeholderTextColor={pickupQuery ? "black" : "gray"}
-  value={pickupQuery}
-  onChangeText={(text) => {
-    setPickupQuery(text);
-    fetchSuggestions(text, 'pickup');
-  }}
-  accessibilityLabel="Pickup Location Input"
-  accessibilityHint="Enter pickup location"
-/>
-
-      </View>
-
-      <View style={styles.inputContainer}>
         <View style={styles.inputWrapper}>
-          <Ionicons name="location" size={20} color="#007bff" style={styles.inputIcon} />
+          <Ionicons name="location" size={20} color="#FECC4C" style={styles.inputIcon} />
           <TextInput
-  style={styles.input}
-  placeholder={pickupQuery || "Pickup Location"}
-  placeholderTextColor={pickupQuery ? "black" : "gray"}
-  value={pickupQuery}
-  onChangeText={(text) => {
-    setPickupQuery(text);
-    fetchSuggestions(text, 'pickup');
-  }}
-  accessibilityLabel="Pickup Location Input"
-  accessibilityHint="Enter pickup location"
-/>
-
+            style={styles.input}
+            placeholder={pickupQuery || "Pickup Location"}
+            placeholderTextColor={pickupQuery ? "white" : "#7e7e7e"}
+            value={pickupQuery}
+            onChangeText={(text) => {
+              setPickupQuery(text);
+              fetchSuggestions(text, 'pickup');
+            }}
+            accessibilityLabel="Pickup Location Input"
+            accessibilityHint="Enter pickup location"
+          />
         </View>
         <View style={styles.inputWrapper}>
-          <Ionicons name="pin" size={20} color="#007bff" style={styles.inputIcon} />
+          <Ionicons name="pin" size={20} color="#FECC4C" style={styles.inputIcon} />
           <TextInput
-  style={styles.input}
-  placeholder={destinationQuery || "Destination Location"}
-  placeholderTextColor={destinationQuery ? "black" : "gray"}
-  value={destinationQuery}
-  onChangeText={(text) => {
-    setDestinationQuery(text);
-    fetchSuggestions(text, 'destination');
-  }}
-  accessibilityLabel="Destination Location Input"
-  accessibilityHint="Enter destination location"
-/>
-
+            style={styles.input}
+            placeholder={destinationQuery || "Destination Location"}
+            placeholderTextColor={destinationQuery ? "white" : "#7e7e7e"}
+            value={destinationQuery}
+            onChangeText={(text) => {
+              setDestinationQuery(text);
+              fetchSuggestions(text, 'destination');
+            }}
+            accessibilityLabel="Destination Location Input"
+            accessibilityHint="Enter destination location"
+          />
         </View>
       </View>
 
@@ -279,7 +310,7 @@ const MapScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F8F9FA',
+    backgroundColor: '#000',
   },
   map: {
     width: Dimensions.get('window').width,
@@ -290,7 +321,7 @@ const styles = StyleSheet.create({
     top: 60,
     left: 20,
     right: 20,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#232323',
     borderRadius: 10,
     padding: 10,
     shadowColor: '#000',
@@ -313,23 +344,24 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     height: 40,
-    borderColor: 'gray',
+    borderColor: '#424242',
     borderWidth: 1,
     borderRadius: 5,
     paddingHorizontal: 10,
+    color: 'white',
   },
   findRideButton: {
     position: 'absolute',
     bottom: 40,
     left: 20,
     right: 20,
-    backgroundColor: '#007bff',
+    backgroundColor: '#FECC4C',
     paddingVertical: 15,
     borderRadius: 10,
     alignItems: 'center',
   },
   findRideButtonText: {
-    color: '#FFFFFF',
+    color: '#000',
     fontSize: 18,
     fontWeight: 'bold',
   },
@@ -338,18 +370,18 @@ const styles = StyleSheet.create({
     height: 30,
   },
   userLocationButton: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#424242',
     borderRadius: 20,
     padding: 8,
     borderWidth: 1,
-    borderColor: '#007bff',
+    borderColor: '#FECC4C',
   },
   suggestionsList: {
     position: 'absolute',
     top: 120,
     left: 20,
     right: 20,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#232323',
     borderRadius: 5,
     maxHeight: 200,
     zIndex: 1,
@@ -359,7 +391,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 10,
     borderBottomWidth: 1,
-    borderBottomColor: '#EEEEEE',
+    borderBottomColor: '#424242',
   },
   suggestionIcon: {
     width: 20,
@@ -368,6 +400,7 @@ const styles = StyleSheet.create({
   },
   suggestionText: {
     fontSize: 16,
+    color: 'white',
   },
 });
 

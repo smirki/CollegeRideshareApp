@@ -40,16 +40,16 @@ const data = [
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F5F5F5',
-    paddingHorizontal: 20,
-    marginHorizontal: 18,
+    padding: 20,
+    backgroundColor: '#000',
   },
   topBar: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginVertical: 10,
+    marginBottom: 20,
   },
   title: {
+    color: 'white',
     fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 10,
@@ -57,156 +57,112 @@ const styles = StyleSheet.create({
   searchBar: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#FFFFFF',
-    borderRadius: 20,
+    backgroundColor: '#232323',
+    borderRadius: 10,
     paddingHorizontal: 15,
     marginBottom: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 3,
-    elevation: 5,
   },
   searchInput: {
     flex: 1,
     height: 40,
-    paddingHorizontal: 10,
+    color: 'white',
   },
   filterButton: {
-    backgroundColor: '#FFCC00',
-    borderRadius: 15,
+    backgroundColor: '#424242',
+    borderRadius: 10,
     padding: 10,
   },
   sectionHeader: {
+    color: 'white',
     fontSize: 18,
     fontWeight: 'bold',
     marginBottom: 10,
   },
   destinationCard: {
-    backgroundColor: 'white',
+    backgroundColor: '#232323',
     borderRadius: 10,
     padding: 15,
     margin: 5,
     alignItems: 'center',
     width: '48%',
   },
-    destinationImage: {
-      width: '100%',
-      height: 120,
-      borderRadius: 10,
-      marginBottom: 8,
-      // replace with actual image source
-      justifyContent: 'center',
-      alignItems: 'center',
-    },
-    destinationTitle: {
-      fontSize: 16,
-      fontWeight: 'bold',
-      marginBottom: 4,
-    },
-    destinationTime: {
-      fontSize: 14,
-      color: 'gray',
-      marginBottom: 8,
-    },
-    goButtonSmall: {
-      backgroundColor: '#ffcc00',
-      paddingHorizontal: 20,
-      paddingVertical: 10,
-      borderRadius: 20,
-    },
-    goButtonTextSmall: {
-      fontSize: 14,
-      fontWeight: 'bold',
-      color: 'white',
-    },
-    goButtonLarge: {
-      backgroundColor: '#ffcc00',
-      position: 'absolute',
-      bottom: 30,
-      alignSelf: 'center',
-      width: 70,
-      height: 70,
-      borderRadius: 35,
-      justifyContent: 'center',
-      alignItems: 'center',
-    },
-    goButtonTextLarge: {
-      fontSize: 18,
-      fontWeight: 'bold',
-      color: 'white',
-    },
-    searchContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-      },
-      searchInputContainer: {
-        flex: 1, 
-        marginRight: 10, 
-      },
-      searchInput: {
-        // Style your search input
-      },
-      filterButton: {
-        
-        
-      },searchBar: {
-        flexDirection: 'row',
-        paddingHorizontal: 10,
-        paddingVertical: 8,
-        backgroundColor: '#FFFFFF',
-        borderRadius: 20,
-        margin: 10,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.2,
-        shadowRadius: 3,
-        elevation: 5,
-      },
-      searchInput: {
-        flex: 1,
-        paddingHorizontal: 10,
-      },
-      filterButton: {
-        backgroundColor: '#FFCC00',
-        borderRadius: 15,
-        padding: 10,
-      },
-      iconWrapper: {
-        backgroundColor: '#FFFFFF',
-        borderRadius: 15,
-        padding: 5,
-      },
-      profilePic: {
-        width: 50,
-        height: 50,
-        borderRadius: 25, // Makes it circular
-      },
-      userName: {
-        marginLeft: 10,
-        fontWeight: 'bold',
-      },
-      filtersContainer: {
-        flexDirection: 'row',
-        paddingHorizontal: 5,
-        marginBottom: 0,
-      },
-      filterTag: {
-        backgroundColor: '#f0f0f0',
-        borderRadius: 20,
-        paddingHorizontal: 15,
-        paddingVertical: 8,
-        margin: 5,
-      },
-      activeFilterTag: {
-        backgroundColor: '#FECC4C',
-        color: 'white',
-      },
-      filterTagText: {
-        fontSize: 16,
-        fontWeight: 'bold',
-      },
-    });
+  destinationImage: {
+    width: '100%',
+    height: 120,
+    borderRadius: 10,
+    marginBottom: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  destinationTitle: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginBottom: 4,
+  },
+  destinationTime: {
+    color: '#7e7e7e',
+    fontSize: 14,
+    marginBottom: 8,
+  },
+  goButtonSmall: {
+    backgroundColor: '#424242',
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 10,
+  },
+  goButtonTextSmall: {
+    color: 'white',
+    fontSize: 14,
+    fontWeight: 'bold',
+  },
+  goButtonLarge: {
+    backgroundColor: '#424242',
+    position: 'absolute',
+    bottom: 30,
+    alignSelf: 'center',
+    width: 70,
+    height: 70,
+    borderRadius: 35,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  goButtonTextLarge: {
+    color: 'white',
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  profilePic: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+  },
+  userName: {
+    color: 'white',
+    marginLeft: 10,
+    fontWeight: 'bold',
+  },
+  filtersContainer: {
+    flexDirection: 'row',
+    paddingHorizontal: 5,
+    marginBottom: 10,
+  },
+  filterTag: {
+    backgroundColor: '#232323',
+    borderRadius: 20,
+    paddingHorizontal: 15,
+    paddingVertical: 8,
+    margin: 5,
+  },
+  activeFilterTag: {
+    backgroundColor: '#424242',
+  },
+  filterTagText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+});
 
 
   
@@ -303,20 +259,21 @@ const styles = StyleSheet.create({
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.topBar}>
-        {user ? (
-          <>
-            <Image source={{ uri: user.profilePic }} style={styles.profilePic} />
-            <Text style={styles.userName}>{user.name}</Text>
-          </>
-        ) : (
-          <Text style={styles.userName}>Loading user...</Text>
-        )}
-      </View>
+          {user ? (
+            <>
+              <Image source={{ uri: user.profilePic }} style={styles.profilePic} />
+              <Text style={styles.userName}>{user.name}</Text>
+            </>
+          ) : (
+            <Text style={styles.userName}>Loading user...</Text>
+          )}
+        </View>
         <Text style={styles.title}>Find a Driver</Text>
         <View style={styles.searchBar}>
           <TextInput
             style={styles.searchInput}
             placeholder="Search Events..."
+            placeholderTextColor="#7e7e7e"
             onChangeText={setSearch}
             value={search}
           />
