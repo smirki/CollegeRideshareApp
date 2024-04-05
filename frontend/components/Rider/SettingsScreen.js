@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, Switch, StyleSheet, ScrollView, TouchableOpacity, Linking } from 'react-native';
-import { AntDesign } from '@expo/vector-icons'; // Ensure you have expo/vector-icons installed
+import { AntDesign, FontAwesome, Ionicons, MaterialIcons } from '@expo/vector-icons';
 
 const AccordionItem = ({ title, children, expanded }) => {
   const [isExpanded, setIsExpanded] = useState(expanded);
@@ -8,25 +8,30 @@ const AccordionItem = ({ title, children, expanded }) => {
     <View>
       <TouchableOpacity style={styles.accordionHeader} onPress={() => setIsExpanded(!isExpanded)}>
         <Text style={styles.settingText}>{title}</Text>
-        <AntDesign name={isExpanded ? 'up' : 'down'} size={16} color="black" />
+        <AntDesign name={isExpanded ? 'up' : 'down'} size={16} color="#34C759" />
       </TouchableOpacity>
       {isExpanded && children}
     </View>
   );
 };
 
-const SettingsScreen = ({navigation}) => {
-  // Example of individual state for different settings
+const SettingsScreen = ({ navigation }) => {
   const [notificationsEnabled, setNotificationsEnabled] = useState(false);
   const [locationTrackingEnabled, setLocationTrackingEnabled] = useState(false);
   const [darkModeEnabled, setDarkModeEnabled] = useState(false);
+  const [biometricAuthEnabled, setBiometricAuthEnabled] = useState(false);
+  const [rideHistoryEnabled, setRideHistoryEnabled] = useState(true);
+  const [emergencyContactsEnabled, setEmergencyContactsEnabled] = useState(false);
+  const [paymentMethodsEnabled, setPaymentMethodsEnabled] = useState(true);
 
-  // Toggle functions for each setting
   const toggleNotifications = () => setNotificationsEnabled(!notificationsEnabled);
   const toggleLocationTracking = () => setLocationTrackingEnabled(!locationTrackingEnabled);
   const toggleDarkMode = () => setDarkModeEnabled(!darkModeEnabled);
+  const toggleBiometricAuth = () => setBiometricAuthEnabled(!biometricAuthEnabled);
+  const toggleRideHistory = () => setRideHistoryEnabled(!rideHistoryEnabled);
+  const toggleEmergencyContacts = () => setEmergencyContactsEnabled(!emergencyContactsEnabled);
+  const togglePaymentMethods = () => setPaymentMethodsEnabled(!paymentMethodsEnabled);
 
-  // Function to open URLs for privacy policy and terms of service
   const openURL = (url) => {
     Linking.canOpenURL(url).then((supported) => {
       if (supported) {
@@ -42,82 +47,209 @@ const SettingsScreen = ({navigation}) => {
       <Text style={styles.header}>Settings</Text>
 
       <AccordionItem title="Account">
-        <TouchableOpacity
-          style={styles.button}
-          onPress={() => navigation.navigate('ProfileScreen')}
-        >
-          <Text style={styles.buttonText}>Profile</Text>
+        <TouchableOpacity style={styles.settingItem} onPress={() => navigation.navigate('ProfileScreen')}>
+          <View style={styles.iconContainer}>
+            <FontAwesome name="user" size={20} color="#34C759" />
+          </View>
+          <Text style={styles.settingText}>Profile</Text>
+          <AntDesign name="right" size={16} color="#34C759" />
         </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.button}
-          onPress={() => navigation.navigate('ChangePasswordScreen')}
-        >
-          <Text style={styles.buttonText}>Change Password</Text>
+        <TouchableOpacity style={styles.settingItem} onPress={() => navigation.navigate('ChangePasswordScreen')}>
+          <View style={styles.iconContainer}>
+            <FontAwesome name="lock" size={20} color="#34C759" />
+          </View>
+          <Text style={styles.settingText}>Change Password</Text>
+          <AntDesign name="right" size={16} color="#34C759" />
         </TouchableOpacity>
+        <View style={styles.settingItem}>
+          <View style={styles.iconContainer}>
+            <FontAwesome name="credit-card" size={20} color="#34C759" />
+          </View>
+          <Text style={styles.settingText}>Payment Methods</Text>
+          <Switch
+            value={paymentMethodsEnabled}
+            onValueChange={togglePaymentMethods}
+            trackColor={{ false: '#767577', true: '#34C759' }}
+            thumbColor={paymentMethodsEnabled ? '#FAFAFA' : '#f4f3f4'}
+            ios_backgroundColor="#3e3e3e"
+          />
+        </View>
       </AccordionItem>
 
       <AccordionItem title="Preferences">
         <View style={styles.settingItem}>
+          <View style={styles.iconContainer}>
+            <Ionicons name="notifications" size={20} color="#34C759" />
+          </View>
           <Text style={styles.settingText}>Notifications</Text>
-          <Switch value={notificationsEnabled} onValueChange={toggleNotifications} />
+          <Switch
+            value={notificationsEnabled}
+            onValueChange={toggleNotifications}
+            trackColor={{ false: '#767577', true: '#34C759' }}
+            thumbColor={notificationsEnabled ? '#FAFAFA' : '#f4f3f4'}
+            ios_backgroundColor="#3e3e3e"
+          />
         </View>
         <View style={styles.settingItem}>
+          <View style={styles.iconContainer}>
+            <Ionicons name="location" size={20} color="#34C759" />
+          </View>
           <Text style={styles.settingText}>Location Tracking</Text>
-          <Switch value={locationTrackingEnabled} onValueChange={toggleLocationTracking} />
+          <Switch
+            value={locationTrackingEnabled}
+            onValueChange={toggleLocationTracking}
+            trackColor={{ false: '#767577', true: '#34C759' }}
+            thumbColor={locationTrackingEnabled ? '#FAFAFA' : '#f4f3f4'}
+            ios_backgroundColor="#3e3e3e"
+          />
         </View>
         <View style={styles.settingItem}>
+          <View style={styles.iconContainer}>
+            <MaterialIcons name="brightness-4" size={20} color="#34C759" />
+          </View>
           <Text style={styles.settingText}>Dark Mode</Text>
-          <Switch value={darkModeEnabled} onValueChange={toggleDarkMode} />
+          <Switch
+            value={darkModeEnabled}
+            onValueChange={toggleDarkMode}
+            trackColor={{ false: '#767577', true: '#34C759' }}
+            thumbColor={darkModeEnabled ? '#FAFAFA' : '#f4f3f4'}
+            ios_backgroundColor="#3e3e3e"
+          />
+        </View>
+        <View style={styles.settingItem}>
+          <View style={styles.iconContainer}>
+            <FontAwesome name="map" size={20} color="#34C759" />
+          </View>
+          <Text style={styles.settingText}>Map Preferences</Text>
+          <AntDesign name="right" size={16} color="#34C759" />
         </View>
       </AccordionItem>
 
-      <AccordionItem title="Privacy">
+      <AccordionItem title="Security">
+        <View style={styles.settingItem}>
+          <View style={styles.iconContainer}>
+            <FontAwesome name="check-square" size={20} color="#34C759" />
+          </View>
+          <Text style={styles.settingText}>Biometric Authentication</Text>
+          <Switch
+            value={biometricAuthEnabled}
+            onValueChange={toggleBiometricAuth}
+            trackColor={{ false: '#767577', true: '#34C759' }}
+            thumbColor={biometricAuthEnabled ? '#FAFAFA' : '#f4f3f4'}
+            ios_backgroundColor="#3e3e3e"
+          />
+        </View>
         <TouchableOpacity
-          style={styles.button}
+          style={styles.settingItem}
           onPress={() => openURL('https://www.youruniversity.edu/privacy-policy')}
         >
-          <Text style={styles.buttonText}>Privacy Policy</Text>
+          <View style={styles.iconContainer}>
+            <FontAwesome name="shield" size={20} color="#34C759" />
+          </View>
+          <Text style={styles.settingText}>Privacy Policy</Text>
+          <AntDesign name="right" size={16} color="#34C759" />
         </TouchableOpacity>
         <TouchableOpacity
-          style={styles.button}
+          style={styles.settingItem}
           onPress={() => openURL('https://www.youruniversity.edu/terms-of-service')}
         >
-          <Text style={styles.buttonText}>Terms of Service</Text>
+          <View style={styles.iconContainer}>
+            <FontAwesome name="file-text-o" size={20} color="#34C759" />
+          </View>
+          <Text style={styles.settingText}>Terms of Service</Text>
+          <AntDesign name="right" size={16} color="#34C759" />
+        </TouchableOpacity>
+      </AccordionItem>
+
+      <AccordionItem title="Ride History">
+        <View style={styles.settingItem}>
+          <View style={styles.iconContainer}>
+            <FontAwesome name="history" size={20} color="#34C759" />
+          </View>
+          <Text style={styles.settingText}>Save Ride History</Text>
+          <Switch
+            value={rideHistoryEnabled}
+            onValueChange={toggleRideHistory}
+            trackColor={{ false: '#767577', true: '#34C759' }}
+            thumbColor={rideHistoryEnabled ? '#FAFAFA' : '#f4f3f4'}
+            ios_backgroundColor="#3e3e3e"
+          />
+        </View>
+        <TouchableOpacity style={styles.settingItem} onPress={() => navigation.navigate('RideHistoryScreen')}>
+          <View style={styles.iconContainer}>
+            <FontAwesome name="list-alt" size={20} color="#34C759" />
+          </View>
+          <Text style={styles.settingText}>View Ride History</Text>
+          <AntDesign name="right" size={16} color="#34C759" />
+        </TouchableOpacity>
+      </AccordionItem>
+
+      <AccordionItem title="Safety">
+        <View style={styles.settingItem}>
+          <View style={styles.iconContainer}>
+            <FontAwesome name="phone" size={20} color="#34C759" />
+          </View>
+          <Text style={styles.settingText}>Emergency Contacts</Text>
+          <Switch
+            value={emergencyContactsEnabled}
+            onValueChange={toggleEmergencyContacts}
+            trackColor={{ false: '#767577', true: '#34C759' }}
+            thumbColor={emergencyContactsEnabled ? '#FAFAFA' : '#f4f3f4'}
+            ios_backgroundColor="#3e3e3e"
+          />
+        </View>
+        <TouchableOpacity style={styles.settingItem} onPress={() => navigation.navigate('SafetyTipsScreen')}>
+          <View style={styles.iconContainer}>
+            <FontAwesome name="info-circle" size={20} color="#34C759" />
+          </View>
+          <Text style={styles.settingText}>Safety Tips</Text>
+          <AntDesign name="right" size={16} color="#34C759" />
+        </TouchableOpacity>
+      </AccordionItem>
+
+      <AccordionItem title="Support">
+        <TouchableOpacity style={styles.settingItem} onPress={() => navigation.navigate('HelpCenterScreen')}>
+          <View style={styles.iconContainer}>
+            <FontAwesome name="question-circle" size={20} color="#34C759" />
+          </View>
+          <Text style={styles.settingText}>Help Center</Text>
+          <AntDesign name="right" size={16} color="#34C759" />
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.settingItem} onPress={() => navigation.navigate('ContactSupportScreen')}>
+          <View style={styles.iconContainer}>
+            <FontAwesome name="envelope" size={20} color="#34C759" />
+          </View>
+          <Text style={styles.settingText}>Contact Support</Text>
+          <AntDesign name="right" size={16} color="#34C759" />
         </TouchableOpacity>
       </AccordionItem>
 
       <AccordionItem title="About">
-        <TouchableOpacity
-          style={styles.button}
-          onPress={() => navigation.navigate('AboutScreen')}
-        >
-          <Text style={styles.buttonText}>About the App</Text>
+        <TouchableOpacity style={styles.settingItem} onPress={() => navigation.navigate('AboutScreen')}>
+          <View style={styles.iconContainer}>
+            <FontAwesome name="info-circle" size={20} color="#34C759" />
+          </View>
+          <Text style={styles.settingText}>About the App</Text>
+          <AntDesign name="right" size={16} color="#34C759" />
         </TouchableOpacity>
         <TouchableOpacity
-          style={styles.button}
+          style={styles.settingItem}
           onPress={() => openURL('https://www.youruniversity.edu/contact')}
         >
-          <Text style={styles.buttonText}>Contact Us</Text>
+          <View style={styles.iconContainer}>
+            <FontAwesome name="envelope" size={20} color="#34C759" />
+          </View>
+          <Text style={styles.settingText}>Contact Us</Text>
+          <AntDesign name="right" size={16} color="#34C759" />
         </TouchableOpacity>
       </AccordionItem>
 
       <TouchableOpacity
         style={styles.button}
-        onPress={() => navigation.navigate('PaymentsScreen')}
+        onPress={() => navigation.navigate('SignOutScreen')}
       >
-        <Text style={styles.buttonText}>Payments</Text>
+        <Text style={styles.buttonText}>Sign Out</Text>
       </TouchableOpacity>
-
-      <TouchableOpacity
-  style={styles.button}
-  onPress={() => navigation.openDrawer()}
->
-  <Text style={styles.buttonText}>Open Drawer</Text>
-</TouchableOpacity>
-
-
-      {/* Additional settings options */}
-      
     </ScrollView>
   );
 };
@@ -126,26 +258,34 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    backgroundColor: 'white',
+    backgroundColor: '#121212',
   },
   header: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: 'black',
+    color: 'white',
     marginBottom: 20,
   },
   settingItem: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 20,
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#373737',
+  },
+  iconContainer: {
+    backgroundColor: '#232323',
+    padding: 10,
+    borderRadius: 10,
+    marginRight: 10,
   },
   settingText: {
+    flex: 1,
     fontSize: 18,
-    color: 'black',
+    color: 'white',
   },
   button: {
-    backgroundColor: '#FFCC00',
+    backgroundColor: '#34C759',
     padding: 15,
     borderRadius: 10,
     alignItems: 'center',
@@ -153,16 +293,17 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     fontSize: 16,
-    color: 'black',
+    color: 'white',
     fontWeight: 'bold',
-  },accordionHeader: {
+  },
+  accordionHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: 10,
+    paddingVertical: 15,
     borderTopWidth: 1,
     borderBottomWidth: 1,
-    borderColor: '#ECECEC',
+    borderColor: '#373737',
   },
 });
 

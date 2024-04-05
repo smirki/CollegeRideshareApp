@@ -1,1 +1,0 @@
-#service layer that contains business logic, interacts with supabase

@@ -5,6 +5,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { decode as atob } from 'base-64';
 global.atob = atob;
 import { jwtDecode} from 'jwt-decode'; // Updated import
+import { ObjectId } from 'bson';
 
 // Dummy data for the flat list
 const data = [
@@ -40,16 +41,16 @@ const data = [
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F5F5F5',
-    paddingHorizontal: 20,
-    marginHorizontal: 18,
+    padding: 20,
+    backgroundColor: '#000',
   },
   topBar: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginVertical: 10,
+    marginBottom: 20,
   },
   title: {
+    color: 'white',
     fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 10,
@@ -57,213 +58,162 @@ const styles = StyleSheet.create({
   searchBar: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#FFFFFF',
-    borderRadius: 20,
+    backgroundColor: '#232323',
+    borderRadius: 10,
     paddingHorizontal: 15,
     marginBottom: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 3,
-    elevation: 5,
   },
   searchInput: {
     flex: 1,
     height: 40,
-    paddingHorizontal: 10,
+    color: 'white',
   },
   filterButton: {
-    backgroundColor: '#FFCC00',
-    borderRadius: 15,
+    backgroundColor: '#424242',
+    borderRadius: 10,
     padding: 10,
   },
   sectionHeader: {
+    color: 'white',
     fontSize: 18,
     fontWeight: 'bold',
     marginBottom: 10,
   },
   destinationCard: {
-    backgroundColor: 'white',
+    backgroundColor: '#232323',
     borderRadius: 10,
     padding: 15,
     margin: 5,
     alignItems: 'center',
     width: '48%',
   },
-    destinationImage: {
-      width: '100%',
-      height: 120,
-      borderRadius: 10,
-      marginBottom: 8,
-      // replace with actual image source
-      justifyContent: 'center',
-      alignItems: 'center',
-    },
-    destinationTitle: {
-      fontSize: 16,
-      fontWeight: 'bold',
-      marginBottom: 4,
-    },
-    destinationTime: {
-      fontSize: 14,
-      color: 'gray',
-      marginBottom: 8,
-    },
-    goButtonSmall: {
-      backgroundColor: '#ffcc00',
-      paddingHorizontal: 20,
-      paddingVertical: 10,
-      borderRadius: 20,
-    },
-    goButtonTextSmall: {
-      fontSize: 14,
-      fontWeight: 'bold',
-      color: 'white',
-    },
-    goButtonLarge: {
-      backgroundColor: '#ffcc00',
-      position: 'absolute',
-      bottom: 30,
-      alignSelf: 'center',
-      width: 70,
-      height: 70,
-      borderRadius: 35,
-      justifyContent: 'center',
-      alignItems: 'center',
-    },
-    goButtonTextLarge: {
-      fontSize: 18,
-      fontWeight: 'bold',
-      color: 'white',
-    },
-    searchContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-      },
-      searchInputContainer: {
-        flex: 1, 
-        marginRight: 10, 
-      },
-      searchInput: {
-        // Style your search input
-      },
-      filterButton: {
-        
-        
-      },searchBar: {
-        flexDirection: 'row',
-        paddingHorizontal: 10,
-        paddingVertical: 8,
-        backgroundColor: '#FFFFFF',
-        borderRadius: 20,
-        margin: 10,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.2,
-        shadowRadius: 3,
-        elevation: 5,
-      },
-      searchInput: {
-        flex: 1,
-        paddingHorizontal: 10,
-      },
-      filterButton: {
-        backgroundColor: '#FFCC00',
-        borderRadius: 15,
-        padding: 10,
-      },
-      iconWrapper: {
-        backgroundColor: '#FFFFFF',
-        borderRadius: 15,
-        padding: 5,
-      },
-      profilePic: {
-        width: 50,
-        height: 50,
-        borderRadius: 25, // Makes it circular
-      },
-      userName: {
-        marginLeft: 10,
-        fontWeight: 'bold',
-      },
-      filtersContainer: {
-        flexDirection: 'row',
-        paddingHorizontal: 5,
-        marginBottom: 0,
-      },
-      filterTag: {
-        backgroundColor: '#f0f0f0',
-        borderRadius: 20,
-        paddingHorizontal: 15,
-        paddingVertical: 8,
-        margin: 5,
-      },
-      activeFilterTag: {
-        backgroundColor: '#FECC4C',
-        color: 'white',
-      },
-      filterTagText: {
-        fontSize: 16,
-        fontWeight: 'bold',
-      },
-    });
+  destinationImage: {
+    width: '100%',
+    height: 120,
+    borderRadius: 10,
+    marginBottom: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  destinationTitle: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginBottom: 4,
+  },
+  destinationTime: {
+    color: '#7e7e7e',
+    fontSize: 14,
+    marginBottom: 8,
+  },
+  goButtonSmall: {
+    backgroundColor: '#424242',
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 10,
+  },
+  goButtonTextSmall: {
+    color: 'white',
+    fontSize: 14,
+    fontWeight: 'bold',
+  },
+  goButtonLarge: {
+    backgroundColor: '#424242',
+    position: 'absolute',
+    bottom: 30,
+    alignSelf: 'center',
+    width: 70,
+    height: 70,
+    borderRadius: 35,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  goButtonTextLarge: {
+    color: 'white',
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  profilePic: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+  },
+  userName: {
+    color: 'white',
+    marginLeft: 10,
+    fontWeight: 'bold',
+  },
+  filtersContainer: {
+    flexDirection: 'row',
+    paddingHorizontal: 5,
+    marginBottom: 10,
+  },
+  filterTag: {
+    backgroundColor: '#232323',
+    borderRadius: 20,
+    paddingHorizontal: 15,
+    paddingVertical: 8,
+    margin: 5,
+  },
+  activeFilterTag: {
+    backgroundColor: '#424242',
+  },
+  filterTagText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  myEventsButton: {
+    position: 'absolute',
+    right: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  myEventsButtonText: {
+    color: 'white',
+    marginLeft: 5,
+    fontWeight: 'bold',
+  },
+  destinationPrice: {
+    color: '#fff',
+    fontSize: 14,
+    marginBottom: 4,
+  },
+  destinationTickets: {
+    color: '#fff',
+    fontSize: 14,
+    marginBottom: 8,
+  },
+});
 
 
   
   
 
-  const HomeScreen = ({ navigation }) => {
-    const handlePressGo = (item) => {
-      navigation.navigate('Map', {
-        initialDestination: {
-          latitude: item.latitude,
-          longitude: item.longitude,
-          label: item.title,
-        },
-      });
-    };
-    
-  
-    const userProfile = {
-      name: 'Jane Doe',
-      profilePic: 'https://via.placeholder.com/150',
-    };
-    
-  
-    const [search, setSearch] = useState('');
-    const [user, setUser] = useState(null);
-    const [activeCategory, setActiveCategory] = useState('All');
+const HomeScreen = ({ navigation }) => {
+  const [search, setSearch] = useState('');
+  const [user, setUser] = useState(null);
+  const [activeCategory, setActiveCategory] = useState('All');
+  const [data, setData] = useState([]);
 
-    useEffect(() => {
-      fetchUserInfo();
-    }, []);
+  useEffect(() => {
+    fetchUserInfo();
+    fetchDestinationsAndEvents();
+  }, []);
 
-    const fetchUserInfo = async () => {
-      try {
-        const token = await AsyncStorage.getItem('token');
-        if (token) {
-          const decoded = jwtDecode(token);
-          console.log(decoded);
-          // If the token doesn't have the complete user info or it's a newly registered user without a profile picture, set defaults
-          const userData = {
-            _id: decoded.user_id || 'default_id',
-            name: decoded.name || 'User', // Fallback to 'User' if name is not in token
-            email: decoded.email || 'user@example.com', // Fallback email
-            profilePic: decoded.profilePic || 'https://via.placeholder.com/150', // Placeholder image URL
-          };
-          setUser(userData);
-        } else {
-          // Set user to null or default values if there's no token
-          setUser({
-            _id: 'default_id',
-            name: 'User',
-            email: 'user@example.com',
-            profilePic: 'https://via.placeholder.com/150',
-          });
-        }
-      } catch (error) {
-        console.error('Error fetching user info:', error);
-        // Fallback user data in case of an error
+  const fetchUserInfo = async () => {
+    try {
+      const token = await AsyncStorage.getItem('token');
+      if (token) {
+        const decoded = jwtDecode(token);
+        const userData = {
+          _id: decoded.user_id || 'default_id',
+          name: decoded.name || 'User',
+          email: decoded.email || 'user@example.com',
+          profilePic: decoded.profilePic || 'https://via.placeholder.com/150',
+        };
+        setUser(userData);
+      } else {
         setUser({
           _id: 'default_id',
           name: 'User',
@@ -271,38 +221,80 @@ const styles = StyleSheet.create({
           profilePic: 'https://via.placeholder.com/150',
         });
       }
-    };
-  
-  
-    const filteredData = data.filter((item) => activeCategory === 'All' || item.category === activeCategory);
-  
-    const renderDestination = ({ item }) => (
-      <View style={styles.destinationCard}>
-        <View style={[styles.destinationImage, { backgroundColor: item.backgroundColor }]}>
-          {/* Replace with Image component if necessary */}
-          
-        </View>
-        <Text style={styles.destinationTitle}>{item.title}</Text>
-        <Text style={styles.destinationTime}>{item.time}</Text>
-        <TouchableOpacity style={styles.goButtonSmall} onPress={() => handlePressGo(item)}>
-          <Text style={styles.goButtonTextSmall}>GO</Text>
-        </TouchableOpacity>
+    } catch (error) {
+      console.error('Error fetching user info:', error);
+      setUser({
+        _id: 'default_id',
+        name: 'User',
+        email: 'user@example.com',
+        profilePic: 'https://via.placeholder.com/150',
+      });
+    }
+  };
+
+  const fetchDestinationsAndEvents = async () => {
+    try {
+      const response = await fetch(`https://${process.env.EXPO_PUBLIC_API_LOGIN_API}/tickets/destinations-and-events`);
+      const responseData = await response.json();
+      if (response.ok) {
+        setData(responseData.data);
+      } else {
+        throw new Error(responseData.error);
+      }
+    } catch (error) {
+      console.error('Error fetching destinations and events:', error);
+    }
+  };
+
+  const handlePressGo = (item) => {
+    if (item.category === 'Event') {
+      console.log(item._id);
+      navigation.navigate('EventsRegistrationPage', { eventId: item._id });
+    } else {
+      navigation.navigate('Map', {
+        initialDestination: {
+          latitude: item.latitude,
+          longitude: item.longitude,
+          label: item.title,
+        },
+      });
+    }
+  };
+
+  const filteredData = data.filter((item) => activeCategory === 'All' || item.category === activeCategory);
+
+  const renderDestination = ({ item }) => (
+    <View style={styles.destinationCard}>
+      <View style={[styles.destinationImage, { backgroundColor: item.backgroundColor }]}>
+        {/* Replace with Image component if necessary */}
       </View>
-    );
-  
-    const renderFilterTag = (category) => (
-      <TouchableOpacity
-        key={category}
-        style={[styles.filterTag, activeCategory === category && styles.activeFilterTag]}
-        onPress={() => setActiveCategory(category)}
-      >
-        <Text style={styles.filterTagText}>{category}</Text>
+      <Text style={styles.destinationTitle}>{item.title}</Text>
+      <Text style={styles.destinationTime}>{item.time}</Text>
+      {item.category === 'Event' && (
+        <>
+          <Text style={styles.destinationPrice}>Price: ${item.ticketPrice}</Text>
+          <Text style={styles.destinationTickets}>Available Tickets: {item.numberOfTickets - item.ticketsSold}</Text>
+        </>
+      )}
+      <TouchableOpacity style={styles.goButtonSmall} onPress={() => handlePressGo(item)}>
+        <Text style={styles.goButtonTextSmall}>GO</Text>
       </TouchableOpacity>
-    );
-  
-    return (
-      <SafeAreaView style={styles.container}>
-        <View style={styles.topBar}>
+    </View>
+  );
+
+  const renderFilterTag = (category) => (
+    <TouchableOpacity
+      key={category}
+      style={[styles.filterTag, activeCategory === category && styles.activeFilterTag]}
+      onPress={() => setActiveCategory(category)}
+    >
+      <Text style={styles.filterTagText}>{category}</Text>
+    </TouchableOpacity>
+  );
+
+  return (
+    <SafeAreaView style={styles.container}>
+      <View style={styles.topBar}>
         {user ? (
           <>
             <Image source={{ uri: user.profilePic }} style={styles.profilePic} />
@@ -311,36 +303,41 @@ const styles = StyleSheet.create({
         ) : (
           <Text style={styles.userName}>Loading user...</Text>
         )}
-      </View>
-        <Text style={styles.title}>Find a Driver</Text>
-        <View style={styles.searchBar}>
-          <TextInput
-            style={styles.searchInput}
-            placeholder="Search Events..."
-            onChangeText={setSearch}
-            value={search}
-          />
-          <TouchableOpacity style={styles.filterButton} onPress={() => {}}>
-            <Ionicons name="options" size={24} color="white" />
-          </TouchableOpacity>
-        </View>
-        <Text style={styles.sectionHeader}>Popular Destinations</Text>
-        <View style={styles.filtersContainer}>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            {['All', 'Nightlife', 'Grocery', 'Party', 'Frat', 'Venue', 'Bar', 'Brewery'].map(renderFilterTag)}
-          </ScrollView>
-        </View>
-        <FlatList
-          data={filteredData}
-          renderItem={renderDestination}
-          keyExtractor={(item) => item.key}
-          numColumns={2}
-          nestedScrollEnabled
-        />
-        <TouchableOpacity style={styles.goButtonLarge} onPress={() => navigation.navigate('RideConfirmation')}>
-          <Text style={styles.goButtonTextLarge}>GO</Text>
+        <TouchableOpacity onPress={() => navigation.navigate('UserEventsPage')} style={styles.myEventsButton}>
+          <FontAwesome5 name="calendar-alt" size={24} color="white" />
+          <Text style={styles.myEventsButtonText}>My Events</Text>
         </TouchableOpacity>
-      </SafeAreaView>
-    );
-  };
+      </View>
+      <Text style={styles.title}>Find a Driver</Text>
+      <View style={styles.searchBar}>
+        <TextInput
+          style={styles.searchInput}
+          placeholder="Search Events..."
+          placeholderTextColor="#7e7e7e"
+          onChangeText={setSearch}
+          value={search}
+        />
+        <TouchableOpacity style={styles.filterButton} onPress={() => {}}>
+          <Ionicons name="options" size={24} color="white" />
+        </TouchableOpacity>
+      </View>
+      <Text style={styles.sectionHeader}>Popular Destinations</Text>
+      <View style={styles.filtersContainer}>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+          {['All', 'Nightlife', 'Grocery', 'Party', 'Frat', 'Venue', 'Bar', 'Brewery', 'Event'].map(renderFilterTag)}
+        </ScrollView>
+      </View>
+      <FlatList
+        data={filteredData}
+        renderItem={renderDestination}
+        keyExtractor={(item) => item.key}
+        numColumns={2}
+        nestedScrollEnabled
+      />
+      <TouchableOpacity style={styles.goButtonLarge} onPress={() => navigation.navigate('RideConfirmation')}>
+        <Text style={styles.goButtonTextLarge}>GO</Text>
+      </TouchableOpacity>
+    </SafeAreaView>
+  );
+};
   export default HomeScreen;
