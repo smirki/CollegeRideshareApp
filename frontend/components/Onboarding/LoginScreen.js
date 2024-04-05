@@ -13,7 +13,7 @@ const LoginScreen = ({ navigation }) => {
       Alert.alert('Error', 'Please enter your email and password');
       return;
     }
-    fetch(`https://${process.env.EXPO_PUBLIC_API_LOGIN_API}/login`, {
+    fetch(`https://${process.env.EXPO_PUBLIC_API_LOGIN_API}/auth/login`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

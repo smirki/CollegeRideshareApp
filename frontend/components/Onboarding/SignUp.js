@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, KeyboardAvoidingView, ScrollView, Platform } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, KeyboardAvoidingView, ScrollView, Alert, Platform } from 'react-native';
 import { Ionicons, Feather } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -16,7 +16,7 @@ const SignUpScreen = ({ navigation }) => {
       Alert.alert('Error', 'Please fill in all fields');
       return;
     }
-    fetch(`https://${process.env.EXPO_PUBLIC_API_LOGIN_API}/register`, {
+    fetch(`https://${process.env.EXPO_PUBLIC_API_LOGIN_API}/auth/register`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

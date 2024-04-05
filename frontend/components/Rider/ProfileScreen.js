@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image, Switch, ScrollView } from 'react-native';
+import React, { useState, useRef } from 'react';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image, Switch, ScrollView, Modal} from 'react-native';
 import { AntDesign, FontAwesome, Ionicons, MaterialIcons } from '@expo/vector-icons';
+import BottomSheet from 'react-native-gesture-bottom-sheet';
 
 const AccordionItem = ({ title, children, expanded }) => {
   const [isExpanded, setIsExpanded] = useState(expanded);
@@ -43,8 +44,22 @@ const ProfileScreen = () => {
     // Implement verification logic here
   };
 
+  
+  const [isSettingsModalVisible, setIsSettingsModalVisible] = useState(false);
+  const toggleSettingsModal = () => setIsSettingsModalVisible(!isSettingsModalVisible);
+
+  const bottomSheetRef = useRef(null);
+
+  const handleOpenSettings = () => {
+    bottomSheetRef.current.show();
+  };
+
+  const handleCloseSettings = () => {
+    bottomSheetRef.current.close();
+  };
+
   return (
-    <ScrollView style={styles.container}>
+    <View style={styles.container}>
       <View style={styles.profileContainer}>
         <Text style={styles.header}>Fill out your profile</Text>
         <Text style={styles.subHeader}>To ensure the safety of everyone on this platform</Text>
@@ -102,8 +117,13 @@ const ProfileScreen = () => {
         </TouchableOpacity>
       </View>
 
-      <View style={styles.settingsContainer}>
-        <Text style={styles.header}>Settings</Text>
+      <TouchableOpacity style={styles.settingsButton} onPress={handleOpenSettings}>
+  <AntDesign name="setting" size={24} color="#FFFFFF" />
+</TouchableOpacity>
+
+      <BottomSheet style={styles.settingsContainer} ref={bottomSheetRef} height={500} onClose={handleCloseSettings}>
+        <View style={styles.settingsContainer}>
+          <Text style={styles.header}>Settings</Text>
 
         <AccordionItem title="Account">
           <View style={styles.settingItem}>
@@ -218,7 +238,8 @@ const ProfileScreen = () => {
           </View>
         </AccordionItem>
       </View>
-    </ScrollView>
+      </BottomSheet>
+    </View>
   );
 };
 
@@ -286,6 +307,7 @@ const styles = StyleSheet.create({
   settingsContainer: {
     paddingHorizontal: 20,
     paddingVertical: 30,
+    backgroundColor: '#000',
   },
   settingItem: {
     flexDirection: 'row',
@@ -313,6 +335,27 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderBottomWidth: 1,
     borderColor: '#232323',
+  },settingsButton: {
+    position: 'absolute',
+    top: 60,
+    right: 20,
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'flex-end',
+    backgroundColor: 'rgba(0,0,0,0.5)',
+  },
+  modalContent: {
+    backgroundColor: '#000',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    padding: 20,
+  },
+  modalHeaderText: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
+    marginBottom: 20,
   },
 });
 

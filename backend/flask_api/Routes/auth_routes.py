@@ -1,11 +1,12 @@
-from datetime import datetime, timedelta
-import json
-from flask import request, jsonify
-from Database.db import db
+from flask import Blueprint, request, jsonify
 from werkzeug.security import generate_password_hash, check_password_hash
-from __main__ import app
 import jwt
+from datetime import datetime, timedelta
+from Database.db import db
+from __main__ import app
 from functools import wraps
+
+auth_bp = Blueprint('auth', __name__)
 
 def token_required(f):
     @wraps(f)
@@ -17,13 +18,15 @@ def token_required(f):
             return jsonify({'message': 'Token is missing!'}), 401
         try:
             data = jwt.decode(token, app.config['SECRET_KEY'], algorithms=["HS256"])
-            current_user = db.Users.find_one({'email': data['user']})
-        except:
+            current_user = db.Users.find_one({'email': data['email']})
+        except jwt.ExpiredSignatureError:
+            return jsonify({'message': 'Token has expired!'}), 401
+        except jwt.InvalidTokenError:
             return jsonify({'message': 'Token is invalid!'}), 401
         return f(current_user, *args, **kwargs)
     return decorated
 
-@app.route('/user', methods=['GET'])
+@auth_bp.route('/user', methods=['GET'])
 @token_required
 def get_user(current_user):
     user_data = {
@@ -36,19 +39,20 @@ def get_user(current_user):
     print(user_data)
     return jsonify({'user': user_data}), 200
 
-@app.route('/register', methods=['POST'])
+@auth_bp.route('/register', methods=['POST'])
 def register():
     email = request.json['email']
     password = request.json['password']
     firstName = request.json['firstName']
     lastName = request.json['lastName']
     phone = request.json['phone']
+
     if 'edu' in email:
         user = db.Users.find_one({'email': email})
         if user:
             return jsonify({'error': 'User already exists'}), 409
+
         hashed_password = generate_password_hash(password)
-        # Save the user and then create a token with more information
         user = {
             'email': email,
             'password': hashed_password,
@@ -67,7 +71,7 @@ def register():
     else:
         return jsonify({'error': 'Not a school email'}), 400
 
-@app.route('/login', methods=['POST'])
+@auth_bp.route('/login', methods=['POST'])
 def login():
     email = request.json['email']
     password = request.json['password']
@@ -84,7 +88,7 @@ def login():
         return jsonify({'error': 'Invalid login credentials'}), 400
 
 # Protected route example
-@app.route('/protected', methods=['GET'])
+@auth_bp.route('/protected', methods=['GET'])
 @token_required
 def protected():
     return jsonify({'message': 'This is a protected route'})

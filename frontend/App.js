@@ -18,6 +18,9 @@ import LoginScreen from './components/Onboarding/LoginScreen.js';
 // Import navigation components
 import DriverTabs from './components/Navigation/DriverTabs.js';
 import ChatScreen from './components/Rider/ChatScreen.js';
+import EventHostPage from './components/Host/EventHostPage.js'
+import UserEventsPage from './components/Rider/UserEventsPage.js'
+import EventsRegistrationPage from './components/Rider/EventsRegistrationPage.js';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -67,6 +70,7 @@ function DrawerNavigator() {
     <Drawer.Navigator initialRouteName="HomeTabs">
       <Drawer.Screen name="HomeTabs" component={HomeTabs} options={{ drawerLabel: 'Rider', headerShown: false }} />
       <Drawer.Screen name="DriverScreen" component={DriverTabs} options={{ drawerLabel: 'Driver', headerShown: false }} />
+      <Drawer.Screen name="EventHostScreen" component={EventHostPage} options={{ drawerLabel: 'Event Host Page', headerShown: false }} />
     </Drawer.Navigator>
   );
 }
@@ -80,13 +84,15 @@ function App() {
           component={Onboarding}
           options={{ headerShown: false }}
         />
-        <Stack.Screen name="Signup" component={SignupScreen} />
-        <Stack.Screen name="Login" component={LoginScreen} />
+        <Stack.Screen name="Signup" component={SignupScreen} options={{ headerShown: false }}/>
+        <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
         <Stack.Screen
           name="DrawerNavigator"
           component={DrawerNavigator}
           options={{ headerShown: false }}
         />
+        <Stack.Screen name="UserEventsPage" component={UserEventsPage} />
+        <Stack.Screen name="EventsRegistrationPage" component={EventsRegistrationPage} options={{ headerShown: false }} />
         <Stack.Screen name="RideConfirmation" component={RideConfirmation} />
         <Stack.Screen name="Settings" component={SettingsScreen} />
         <Stack.Screen name="Notifications" component={NotificationsScreen} />
