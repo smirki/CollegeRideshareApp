@@ -1,6 +1,6 @@
 <img src="https://github.com/smirki/Ugo/blob/dev/frontend/assets/ugoicon.png" alt="Ugo Logo" width="200"/> 
 
-Ugo - College Rideshare App
+Ugo - College Rideshare Appp
 ===========================
 
 Introduction
